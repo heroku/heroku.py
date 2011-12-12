@@ -8,7 +8,8 @@ This module provides the basic API interface for Heroku.
 """
 
 import requests
-
+from .compat import json
+from .models import *
 
 HEROKU_URL = 'https://api.heroku.com'
 
@@ -54,7 +55,40 @@ class HerokuCore(object):
         return self._api_key_verified
 
     def _url_for(self, *args):
+        args = map(str, args)
         return '/'.join([self._heroku_url] + list(args))
+
+    @staticmethod
+    def _resource_serialize(o):
+        """Returns JSON serialization of given object."""
+        return json.dumps(o)
+
+    @staticmethod
+    def _resource_deserialize(s):
+        """Returns dict deserialization of a given JSON string."""
+
+        try:
+            return json.loads(s)
+        except ValueError:
+            raise ResponseError('The API Response was not valid.')
+
+
+    def _get_resource(self, resource, obj, **kwargs):
+
+        r = self._http_resource('GET', resource, params=kwargs)
+        item = self._resource_deserialize(r.content)
+
+        return obj.new_from_dict(item, gh=self)
+
+
+    def _get_resources(self, resource, obj, **kwargs):
+
+        url = self._url_for(resource)
+        r = self._s.get(url, params=kwargs)
+
+        d_items = self._resource_deserialize(r.content)
+
+        return [obj.new_from_dict(item, h=self) for item in d_items]
 
 
 class Heroku(HerokuCore):
@@ -65,6 +99,10 @@ class Heroku(HerokuCore):
 
     def __repr__(self):
         return '<heroku-client at 0x%x>' % (id(self))
+
+    def addons(self):
+        # r = self._s.get(self._url_for('addons'))
+        return self._get_resources(('addons'), Addon)
 
     def apps(self):
         print self._url_for('apps')
