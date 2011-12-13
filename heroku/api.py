@@ -101,11 +101,10 @@ class Heroku(HerokuCore):
         return '<heroku-client at 0x%x>' % (id(self))
 
     def addons(self):
-        # r = self._s.get(self._url_for('addons'))
         return self._get_resources(('addons'), Addon)
 
     def apps(self):
-        print self._url_for('apps')
+        return self._get_resources(('apps'), App)
 
 
 
