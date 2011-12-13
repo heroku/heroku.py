@@ -55,7 +55,6 @@ class BaseResource(object):
 
 
 class Addon(BaseResource):
-
     _strs = ['name', 'description', 'url', 'state']
     _bools = ['beta',]
 
@@ -73,43 +72,70 @@ class App(BaseResource):
     def __repr__(self):
         return "<app '%s'>" % (self.name)
 
+    def collaborators(self):
+        return self._h._get_resources(
+            resource=('apps', self.name, 'collaborators'),
+            obj=Collaborator
+        )
+
+    def domains(self):
+        return self._h._get_resources(
+            resource=('apps', self.name, 'domains'),
+            obj=Domain
+        )
+
 
 class Collaborator(BaseResource):
+    _strs = ['access', 'email']
+
     def __init__(self):
-        super(App, self).__init__()
+        super(Collaborator, self).__init__()
+
+    def __repr__(self):
+        return "<collaborator '%s'>" % (self.email)
 
 
-class Config(BaseResource):
-    def __init__(self):
-        super(App, self).__init__()
+# class ConfigVars(BaseResource):
+#     def __init__(self):
+#         super(ConfigVars, self).__init__()
+
 
 class Domain(BaseResource):
+
+    _ints = ['id', 'app_id', ]
+    _strs = ['domain', 'base_domain', 'default']
+    _dates = ['created_at', 'updated_at']
+
+
     def __init__(self):
-        super(App, self).__init__()
+        super(Domain, self).__init__()
+
+    def __repr__(self):
+        return "<domain '%s'>" % (self.domain)
 
 
 class Key(BaseResource):
     def __init__(self):
-        super(App, self).__init__()
+        super(Key, self).__init__()
 
 
 class Log(BaseResource):
     def __init__(self):
-        super(App, self).__init__()
+        super(Log, self).__init__()
 
 
 class Process(BaseResource):
     def __init__(self):
-        super(App, self).__init__()
+        super(Process, self).__init__()
 
 
 class Release(BaseResource):
     def __init__(self):
-        super(App, self).__init__()
+        super(Release, self).__init__()
 
 
 class Stack(BaseResource):
     def __init__(self):
-        super(App, self).__init__()
+        super(Stack, self).__init__()
 
 
