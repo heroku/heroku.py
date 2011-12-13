@@ -62,10 +62,16 @@ class Addon(BaseResource):
     def __repr__(self):
         return "<addon '%s'>" % (self.name)
 
-
 class App(BaseResource):
+    _strs = ['name', 'create_status', 'stack', 'repo_migrate_status']
+    _ints = ['id', 'slug_size', 'repo_size', 'dynos', 'workers']
+    _dates = ['created_at',]
+
     def __init__(self):
         super(App, self).__init__()
+
+    def __repr__(self):
+        return "<app '%s'>" % (self.name)
 
 
 class Collaborator(BaseResource):

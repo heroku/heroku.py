@@ -75,15 +75,19 @@ class HerokuCore(object):
 
     def _get_resource(self, resource, obj, **kwargs):
 
-        r = self._http_resource('GET', resource, params=kwargs)
+        url = self._url_for(*resource)
+
+        r = self._s.get(url, params=kwargs)
+
         item = self._resource_deserialize(r.content)
 
-        return obj.new_from_dict(item, gh=self)
+        return obj.new_from_dict(item, h=self)
 
 
     def _get_resources(self, resource, obj, **kwargs):
 
-        url = self._url_for(resource)
+        url = self._url_for(*resource)
+
         r = self._s.get(url, params=kwargs)
 
         d_items = self._resource_deserialize(r.content)
@@ -105,6 +109,9 @@ class Heroku(HerokuCore):
 
     def apps(self):
         return self._get_resources(('apps'), App)
+
+    def get_app(self, name):
+        return self._get_resource(('apps', name), App)
 
 
 
