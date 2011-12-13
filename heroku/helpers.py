@@ -51,7 +51,7 @@ def to_python(obj,
         for in_key in date_keys:
             in_date = in_dict.get(in_key)
             try:
-                out_date = datetime.strptime(in_date, '%Y-%m-%dT%H:%M:%SZ')
+                out_date = parse_datetime(in_date)
             except TypeError:
                 out_date = None
 
