@@ -31,7 +31,9 @@ def to_python(obj,
     date_keys=None,
     int_keys=None,
     object_map=None,
-    bool_keys=None, **kwargs):
+    bool_keys=None,
+    dict_keys=None,
+    **kwargs):
     """Extends a given object for API Consumption.
 
     :param obj: Object to extend.
@@ -67,6 +69,11 @@ def to_python(obj,
         for in_key in bool_keys:
             if in_dict.get(in_key) is not None:
                 d[in_key] = bool(in_dict.get(in_key))
+
+    if dict_keys:
+        for in_key in dict_keys:
+            if in_dict.get(in_key) is not None:
+                d[in_key] = dict(in_dict.get(in_key))
 
     if object_map:
         for (k, v) in object_map.items():
