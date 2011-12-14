@@ -9,6 +9,8 @@ This module provides the basic API interface for Heroku.
 
 import requests
 from .compat import json
+from .helpers import is_collection
+from .structures import KeyedListResource
 from .models import *
 
 HEROKU_URL = 'https://api.heroku.com'
@@ -31,7 +33,7 @@ class HerokuCore(object):
     def __repr__(self):
         return '<heroku-core at 0x%x>' % (id(self))
 
-    def login(self, api_key):
+    def authenticate(self, api_key):
         """Logs user into Heroku with given api_key."""
         self._api_key = api_key
 
@@ -39,6 +41,16 @@ class HerokuCore(object):
         self._s.auth = ('', self._api_key)
 
         return self._verify_api_key()
+
+    def request_key(self, username, password):
+        r = self._http_resource(
+            method='POST',
+            resource=('login'),
+            data={'username': username, 'password': password}
+        )
+        r.raise_for_status()
+        return r.content
+
 
     @property
     def is_authenticated(self):
@@ -74,6 +86,9 @@ class HerokuCore(object):
 
     def _http_resource(self, method, resource, params=None, data=None):
         """Makes an HTTP request."""
+        if not is_collection(resource):
+            resource = [resource]
+
         url = self._url_for(*resource)
         return self._s.request(method, url, params=params, data=data)
 
@@ -89,7 +104,10 @@ class HerokuCore(object):
         r = self._http_resource('GET', resource, params=params)
         d_items = self._resource_deserialize(r.content)
 
-        return [obj.new_from_dict(item, h=self, **kwargs) for item in d_items]
+        items =  [obj.new_from_dict(item, h=self, **kwargs) for item in d_items]
+
+        list_resource = KeyedListResource(items=items)
+        return list_resource
 
 
 class Heroku(HerokuCore):
@@ -101,24 +119,23 @@ class Heroku(HerokuCore):
     def __repr__(self):
         return '<heroku-client at 0x%x>' % (id(self))
 
+    @property
     def addons(self):
         return self._get_resources(('addons'), Addon)
 
+    @property
     def apps(self):
         return self._get_resources(('apps'), App)
 
     def get_app(self, name):
         return self._get_resource(('apps', name), App)
 
+    @property
     def keys(self):
         return self._get_resources(('user', 'keys'), Key)
 
     def add_key(self, key):
-        r = self._http_resource(
-            method='POST',
-            resource=('user', 'keys'),
-            data=key
-        )
+        r = self._http_resource(method='POST', resource=('user', 'keys'), data=key)
         return r.ok
 
 

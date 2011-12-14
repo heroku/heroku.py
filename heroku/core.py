@@ -9,11 +9,15 @@ This module provides the base entrypoint for heroku.py.
 
 from .api import Heroku
 
-def login(api_key):
+def key(api_key):
 
     h = Heroku()
 
     # Login.
-    h.login(api_key)
+    h.authenticate(api_key)
 
     return h
+
+def get_key(username, password):
+
+    return Heroku().request_key(username, password)

@@ -7,7 +7,7 @@ heroku.models
 This module contains the models that comprise the Heroku API.
 """
 
-from .helpers import to_python, to_api
+from .helpers import to_python
 
 class BaseResource(object):
 
@@ -17,6 +17,7 @@ class BaseResource(object):
     _bools = []
     _dicts = []
     _map = {}
+    _pks = []
     # _writeable = []
     # _cache = {}
 
@@ -24,6 +25,9 @@ class BaseResource(object):
         self._bootstrap()
         self._h = None
         super(BaseResource, self).__init__()
+
+    def __repr__(self):
+        return "<resource '%s'>" % (self._id)
 
     def _bootstrap(self):
         """Bootstraps the model object based on configured values."""
@@ -34,12 +38,33 @@ class BaseResource(object):
     def _keys(self):
         return self._strs + self._ints + self._dates + self._bools + self._map.keys()
 
+
+    @property
+    def _id(self):
+        return getattr(self, self._pks[0])
+
+
+    @property
+    def _ids(self):
+        for pk in self._pks:
+            yield getattr(self, pk)
+
+        for pk in self._pks:
+
+            try:
+                yield str(getattr(self, pk))
+            except ValueError:
+                pass
+
+
     def dict(self):
         d = dict()
         for k in self.keys():
             d[k] = self.__dict__.get(k)
 
         return d
+
+
 
 
     @classmethod
@@ -65,6 +90,7 @@ class BaseResource(object):
 class Addon(BaseResource):
     _strs = ['name', 'description', 'url', 'state']
     _bools = ['beta',]
+    _pks = ['name']
 
     def __repr__(self):
         return "<addon '%s'>" % (self.name)
@@ -73,6 +99,7 @@ class App(BaseResource):
     _strs = ['name', 'create_status', 'stack', 'repo_migrate_status']
     _ints = ['id', 'slug_size', 'repo_size', 'dynos', 'workers']
     _dates = ['created_at',]
+    _pks = ['name', 'id']
 
     def __init__(self):
         super(App, self).__init__()
@@ -100,6 +127,9 @@ class App(BaseResource):
 
     def rollback(self, release):
         """Rolls back the release to the given version."""
+        pass
+
+    def function():
         pass
 
 

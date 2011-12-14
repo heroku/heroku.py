@@ -24,4 +24,4 @@ __build__ = 0x000001
 
 # Module namespace.
 
-from .core import login
+from .core import key, get_key
