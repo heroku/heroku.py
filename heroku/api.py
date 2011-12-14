@@ -72,27 +72,24 @@ class HerokuCore(object):
         except ValueError:
             raise ResponseError('The API Response was not valid.')
 
-
-    def _get_resource(self, resource, obj, **kwargs):
-
+    def _http_resource(self, method, resource, params=None, data=None):
+        """Makes an HTTP request."""
         url = self._url_for(*resource)
+        return self._s.request(method, url, params=params, data=data)
 
-        r = self._s.get(url, params=kwargs)
-
+    def _get_resource(self, resource, obj, params=None, **kwargs):
+        """Returns a mapped object from an HTTP resource."""
+        r = self._http_resource('GET', resource, params=params)
         item = self._resource_deserialize(r.content)
 
-        return obj.new_from_dict(item, h=self)
+        return obj.new_from_dict(item, h=self, **kwargs)
 
-
-    def _get_resources(self, resource, obj, **kwargs):
-
-        url = self._url_for(*resource)
-
-        r = self._s.get(url, params=kwargs)
-
+    def _get_resources(self, resource, obj, params=None, **kwargs):
+        """Returns a list of mapped objects from an HTTP resource."""
+        r = self._http_resource('GET', resource, params=params)
         d_items = self._resource_deserialize(r.content)
 
-        return [obj.new_from_dict(item, h=self) for item in d_items]
+        return [obj.new_from_dict(item, h=self, **kwargs) for item in d_items]
 
 
 class Heroku(HerokuCore):
@@ -113,6 +110,16 @@ class Heroku(HerokuCore):
     def get_app(self, name):
         return self._get_resource(('apps', name), App)
 
+    def keys(self):
+        return self._get_resources(('user', 'keys'), Key)
+
+    def add_key(self, key):
+        r = self._http_resource(
+            method='POST',
+            resource=('user', 'keys'),
+            data=key
+        )
+        return r.ok
 
 
 class ResponseError(ValueError):
