@@ -15,12 +15,14 @@ class BaseResource(object):
     _ints = []
     _dates = []
     _bools = []
+    _dicts = []
     _map = {}
     # _writeable = []
     # _cache = {}
 
     def __init__(self):
         self._bootstrap()
+        self._h = None
         super(BaseResource, self).__init__()
 
     def _bootstrap(self):
@@ -41,17 +43,23 @@ class BaseResource(object):
 
 
     @classmethod
-    def new_from_dict(cls, d, h=None):
+    def new_from_dict(cls, d, h=None, **kwargs):
 
-        return to_python(
-            obj=cls(), in_dict=d,
-            str_keys = cls._strs,
-            int_keys = cls._ints,
-            date_keys = cls._dates,
-            bool_keys = cls._bools,
-            object_map = cls._map,
+        d = to_python(
+            obj=cls(),
+            in_dict=d,
+            str_keys=cls._strs,
+            int_keys=cls._ints,
+            date_keys=cls._dates,
+            bool_keys=cls._bools,
+            dict_keys= cls._dicts,
+            object_map=cls._map,
             _h = h
         )
+
+        d.__dict__.update(kwargs)
+
+        return d
 
 
 class Addon(BaseResource):
@@ -75,20 +83,31 @@ class App(BaseResource):
     def collaborators(self):
         return self._h._get_resources(
             resource=('apps', self.name, 'collaborators'),
-            obj=Collaborator
+            obj=Collaborator, app=self
         )
 
     def domains(self):
         return self._h._get_resources(
             resource=('apps', self.name, 'domains'),
-            obj=Domain
+            obj=Domain, app=self
         )
+
+    def releases(self):
+        return self._h._get_resources(
+            resource=('apps', self.name, 'releases'),
+            obj=Release, app=self
+        )
+
+    def rollback(self, release):
+        """Rolls back the release to the given version."""
+        pass
 
 
 class Collaborator(BaseResource):
     _strs = ['access', 'email']
 
     def __init__(self):
+        self.app = None
         super(Collaborator, self).__init__()
 
     def __repr__(self):
@@ -101,13 +120,13 @@ class Collaborator(BaseResource):
 
 
 class Domain(BaseResource):
-
     _ints = ['id', 'app_id', ]
     _strs = ['domain', 'base_domain', 'default']
     _dates = ['created_at', 'updated_at']
 
 
     def __init__(self):
+        self.app = None
         super(Domain, self).__init__()
 
     def __repr__(self):
@@ -115,23 +134,62 @@ class Domain(BaseResource):
 
 
 class Key(BaseResource):
+    _strs = ['email', 'contents']
+
     def __init__(self):
         super(Key, self).__init__()
+
+    def __repr__(self):
+        return "<key '%s'>" % (self.id)
+
+    @property
+    def id(self):
+        """Returns the username@hostname description field of the key."""
+
+        return self.contents.split()[-1]
+
+
+    def delete(self):
+        """Deletes the key."""
+        r = self._h._http_resource(
+            method='DELETE',
+            resource=('user', 'keys', self.id)
+        )
+
+        r.raise_for_status()
 
 
 class Log(BaseResource):
     def __init__(self):
+        self.app = None
         super(Log, self).__init__()
 
 
 class Process(BaseResource):
     def __init__(self):
+        self.app = None
         super(Process, self).__init__()
 
 
 class Release(BaseResource):
+    _strs = ['name', 'descr', 'user', 'commit', 'addons']
+    _dicts = ['env', 'pstable']
+    _dates = ['created_at']
+
     def __init__(self):
+        self.app = None
         super(Release, self).__init__()
+
+    def __repr__(self):
+        return "<release '%s'>" % (self.name)
+
+    def rollback(self):
+        """Rolls back the application to this release."""
+
+        assert self.app
+
+        return self.app.rollback(self.name)
+
 
 
 class Stack(BaseResource):
