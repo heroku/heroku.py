@@ -90,7 +90,12 @@ class HerokuCore(object):
             resource = [resource]
 
         url = self._url_for(*resource)
-        return self._s.request(method, url, params=params, data=data)
+        r = self._s.request(method, url, params=params, data=data)
+
+        # TODO: check heroku's status codes
+        r.raise_for_status()
+
+        return r
 
     def _get_resource(self, resource, obj, params=None, **kwargs):
         """Returns a mapped object from an HTTP resource."""

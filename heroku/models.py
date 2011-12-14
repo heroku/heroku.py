@@ -107,18 +107,21 @@ class App(BaseResource):
     def __repr__(self):
         return "<app '%s'>" % (self.name)
 
+    @property
     def collaborators(self):
         return self._h._get_resources(
             resource=('apps', self.name, 'collaborators'),
             obj=Collaborator, app=self
         )
 
+    @property
     def domains(self):
         return self._h._get_resources(
             resource=('apps', self.name, 'domains'),
             obj=Domain, app=self
         )
 
+    @property
     def releases(self):
         return self._h._get_resources(
             resource=('apps', self.name, 'releases'),
@@ -127,10 +130,13 @@ class App(BaseResource):
 
     def rollback(self, release):
         """Rolls back the release to the given version."""
-        pass
+        r = self._h._http_resource(
+            method='POST',
+            resource=('apps', self.name, 'releases'),
+            data={'rollback': release}
+        )
+        return self.releases[-1]
 
-    def function():
-        pass
 
 
 class Collaborator(BaseResource):
@@ -205,6 +211,7 @@ class Release(BaseResource):
     _strs = ['name', 'descr', 'user', 'commit', 'addons']
     _dicts = ['env', 'pstable']
     _dates = ['created_at']
+    _pks = ['name']
 
     def __init__(self):
         self.app = None
@@ -215,8 +222,6 @@ class Release(BaseResource):
 
     def rollback(self):
         """Rolls back the application to this release."""
-
-        assert self.app
 
         return self.app.rollback(self.name)
 
