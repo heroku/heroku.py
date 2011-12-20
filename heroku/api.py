@@ -43,6 +43,7 @@ class HerokuCore(object):
         return self._verify_api_key()
 
     def request_key(self, username, password):
+        # TODO: this doesn't work.
         r = self._http_resource(
             method='POST',
             resource=('login'),
@@ -50,7 +51,6 @@ class HerokuCore(object):
         )
         r.raise_for_status()
         return r.content
-
 
     @property
     def is_authenticated(self):
@@ -104,14 +104,17 @@ class HerokuCore(object):
 
         return obj.new_from_dict(item, h=self, **kwargs)
 
-    def _get_resources(self, resource, obj, params=None, **kwargs):
+    def _get_resources(self, resource, obj, params=None, map=None, **kwargs):
         """Returns a list of mapped objects from an HTTP resource."""
         r = self._http_resource('GET', resource, params=params)
         d_items = self._resource_deserialize(r.content)
 
         items =  [obj.new_from_dict(item, h=self, **kwargs) for item in d_items]
 
-        list_resource = KeyedListResource(items=items)
+        if map is None:
+            map = KeyedListResource
+
+        list_resource = map(items=items)
         return list_resource
 
 
