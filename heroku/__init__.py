@@ -4,6 +4,7 @@
 # / / /_'/ /_//\ /_/. /_//_/
 #                    /   _/
 
+
 """
 heroku.py
 ~~~~~~~~~
@@ -19,8 +20,7 @@ __author__ = 'Heroku'
 __copyright__ = 'Copyright 2011 Heroku'
 __license__ = 'MIT'
 
-__version__ = '0.0.1'
-__build__ = 0x000001
+__version__ = '0.1.0'
 
 # Module namespace.
 
