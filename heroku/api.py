@@ -143,10 +143,6 @@ class Heroku(HerokuCore):
     def keys(self):
         return self._get_resources(('user', 'keys'), Key, map=SSHKeyListResource)
 
-    def add_key(self, key):
-        r = self._http_resource(method='POST', resource=('user', 'keys'), data=key)
-        return r.ok
-
 
 class ResponseError(ValueError):
     """The API Response was unexpected."""

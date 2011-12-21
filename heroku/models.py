@@ -10,6 +10,7 @@ This module contains the models that comprise the Heroku API.
 import json
 from urllib import quote
 
+import requests
 from .helpers import to_python
 from .structures import *
 
@@ -281,6 +282,34 @@ class App(BaseResource):
             resource=('apps', self.name)
         )
         return r.ok
+
+    def logs(self, num=None, source=None, tail=False):
+        """Returns the requested log."""
+
+        payload = {'logplex': 'true'}
+
+        if num:
+            payload['num'] = num
+
+        if source:
+            payload['source'] = source
+
+        if tail:
+            payload['tail'] = 1
+
+        r = self._h._http_resource(
+            method='GET',
+            resource=('apps', self.name, 'logs'),
+            data=payload
+        )
+
+        r = requests.get(r.content)
+
+        if not tail:
+            return r.content
+        else:
+            return r.iter_lines()
+
 
 
 class Collaborator(BaseResource):
