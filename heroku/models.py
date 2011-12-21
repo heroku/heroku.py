@@ -286,6 +286,7 @@ class App(BaseResource):
     def logs(self, num=None, source=None, tail=False):
         """Returns the requested log."""
 
+        # Bootstrap payload package.
         payload = {'logplex': 'true'}
 
         if num:
@@ -297,17 +298,20 @@ class App(BaseResource):
         if tail:
             payload['tail'] = 1
 
+        # Grab the URL of the logplex endpoint.
         r = self._h._http_resource(
             method='GET',
             resource=('apps', self.name, 'logs'),
             data=payload
         )
 
+        # Grab the actual logs.
         r = requests.get(r.content)
 
         if not tail:
             return r.content
         else:
+            # Return line iterator for tail!
             return r.iter_lines()
 
 
