@@ -10,10 +10,10 @@ platform from your applications.
 Usage
 -----
 
-Login with your API Key ( `available here <https://api.heroku.com/account>`_ )::
+Login with your API Key (`available here <https://api.heroku.com/account>`_)::
 
-    from heroku import from_key
-    heroku = from_key('YOUR_API_KEY')
+    import heroku
+    cloud = heroku.from_key('YOUR_API_KEY')
 
 Interact with your applications::
 
@@ -87,6 +87,8 @@ Delete the app completely::
 
     >>> app.delete()
     True
+
+And much more. Detailed docs forthcoming.
 
 
 Installation
