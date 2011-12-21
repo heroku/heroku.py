@@ -12,8 +12,81 @@ Usage
 
 Login with your API Key ( `available here <https://api.heroku.com/account>`_ )::
 
-    >>> from heroku import from_key
-    >>> heroku = from_key('YOUR_API_KEY')
+    from heroku import from_key
+    heroku = from_key('YOUR_API_KEY')
+
+Interact with your applications::
+
+    >>> cloud.apps
+    [<app 'sharp-night-7758'>, <app 'empty-spring-4049'>, ...]
+
+    >>> app = cloud.apps['sharp-night-7758']
+
+
+Scale them up::
+
+    >>> app.processes
+    [<process 'web.1'>, <process 'worker.1'>]
+
+    >>> app.processes['web']
+    [<process 'web.1'>]
+
+    >>> app.processes['web'].scale(3)
+    [<process 'web.1'>, <process 'web.2'>, <process 'web.3'>]
+
+    >>> app.processes[0].stop()
+    True
+
+
+Access the logs::
+
+    >>> print app.logs(num=2)
+    2011-12-21T22:53:47+00:00 heroku[web.1]: State changed from down to created
+    2011-12-21T22:53:47+00:00 heroku[web.1]: State changed from created to starting
+
+    >>> print app.logs(num=2, tail=True)
+    <generator object stream_decode_response_unicode at 0x101151d20>
+
+    >>> for line in app.logs(trail=True):
+    ...     print line
+
+    2011-12-21T22:53:47+00:00 heroku[web.1]: State changed from down to created
+    2011-12-21T22:53:47+00:00 heroku[web.1]: State changed from created to starting
+    ...
+
+
+Change app configration::
+
+    >>> app.config['DEBUG'] = 1
+    >>> app.config
+    {u'DEBUG': 1, u'PATH': u'bin:/usr/local/bin:/usr/bin:/bin', u'PYTHONUNBUFFERED': True}
+
+See release history::
+
+    >>> app.releases
+    [<release 'v1'>, <release 'v2'>, ..., <release 'v84'>]
+
+
+    >>> release = app.releases[-2]
+    >>> release.name
+    v84
+
+    >>> release.env
+    {u'PATH': u'bin:/usr/local/bin:/usr/bin:/bin', u'PYTHONUNBUFFERED': True, u'NEW_RELIC_LOG': u'stdout'}
+
+    >>> release.pstable
+    {u'web': u'gunicorn httpbin:app -b "0.0.0.0:$PORT"'}
+
+    >>> release.addons
+    [u'blitz:250', u'custom_domains:basic', u'logging:basic', u'releases:advanced']
+
+    >>> release.rollback()
+    <release 'v85'>
+
+Delete the app completely::
+
+    >>> app.delete()
+    True
 
 
 Installation
