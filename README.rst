@@ -100,9 +100,7 @@ And much more. Detailed docs forthcoming.
 Installation
 ------------
 
-To install ``heroku.py``, simply:
-
-To install requests, simply::
+To install ``heroku.py``, simply::
 
     $ pip install heroku
 
