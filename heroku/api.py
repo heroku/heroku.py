@@ -86,6 +86,7 @@ class HerokuCore(object):
 
     def _http_resource(self, method, resource, params=None, data=None):
         """Makes an HTTP request."""
+
         if not is_collection(resource):
             resource = [resource]
 

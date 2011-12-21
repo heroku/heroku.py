@@ -8,7 +8,7 @@ This module contains the models that comprise the Heroku API.
 """
 
 import json
-
+from urllib import quote
 
 from .helpers import to_python
 from .structures import *
@@ -23,8 +23,6 @@ class BaseResource(object):
     _dicts = []
     _map = {}
     _pks = []
-    # _writeable = []
-    # _cache = {}
 
     def __init__(self):
         self._bootstrap()
@@ -32,7 +30,7 @@ class BaseResource(object):
         super(BaseResource, self).__init__()
 
     def __repr__(self):
-        return "<resource '%s'>" % (self._id)
+        return "<resource '{0}'>".format(self._id)
 
     def _bootstrap(self):
         """Bootstraps the model object based on configured values."""
@@ -91,7 +89,7 @@ class BaseResource(object):
         return d
 
 
-class Addon(BaseResource):
+class AvailableAddon(BaseResource):
     """Heroku Addon."""
 
     _strs = ['name', 'description', 'url', 'state']
@@ -99,7 +97,51 @@ class Addon(BaseResource):
     _pks = ['name']
 
     def __repr__(self):
-        return "<addon '%s'>" % (self.name)
+        return "<available-addon '{0}'>".format(self.name)
+
+    @property
+    def type(self):
+        return self.name.split(':')[0]
+
+
+class Addon(AvailableAddon):
+    """Heroku Addon."""
+
+    _pks = ['name', 'type']
+
+    def __repr__(self):
+        return "<addon '{0}'>".format(self.name)
+
+    def delete(self):
+        r = self._h._http_resource(
+            method='DELETE',
+            resource=('apps', self.app.name, 'addons', self.name)
+        )
+        return r.ok
+
+    def new(self, name):
+        r = self._h._http_resource(
+            method='POST',
+            resource=('apps', self.app.name, 'addons', name)
+        )
+        r.raise_for_status()
+        return self.app.addons[name]
+
+
+    def upgrade(self, name):
+        """Upgrades an addon to the given tier."""
+        # Allow non-namespaced upgrades. (e.g. advanced vs logging:advanced)
+        if ':' not in name:
+            name = '{0}:{1}'.format(self.type, name)
+
+        r = self._h._http_resource(
+            method='PUT',
+            resource=('apps', self.app.name, 'addons', quote(name)),
+            data=' '   # Server weirdness.
+        )
+        r.raise_for_status()
+        return self.app.addons[name]
+
 
 
 class App(BaseResource):
@@ -114,7 +156,14 @@ class App(BaseResource):
         super(App, self).__init__()
 
     def __repr__(self):
-        return "<app '%s'>" % (self.name)
+        return "<app '{0}'>".format(self.name)
+
+    @property
+    def addons(self):
+        return self._h._get_resources(
+            resource=('apps', self.name, 'addons'),
+            obj=Addon, app=self
+        )
 
     @property
     def collaborators(self):
@@ -180,7 +229,7 @@ class Collaborator(BaseResource):
         super(Collaborator, self).__init__()
 
     def __repr__(self):
-        return "<collaborator '%s'>" % (self.email)
+        return "<collaborator '{0}'>".format(self.email)
 
 
     def new(self, email):
@@ -201,7 +250,6 @@ class Collaborator(BaseResource):
         return r.ok
 
 
-# BaseResource
 class ConfigVars(object):
     """Heroku ConfigVars."""
 
@@ -218,6 +266,7 @@ class ConfigVars(object):
 
     def __setitem__(self, key, value):
 
+        # API expects JSON.
         payload = json.dumps({key: value})
 
         r = self._h._http_resource(
@@ -260,7 +309,7 @@ class Domain(BaseResource):
         super(Domain, self).__init__()
 
     def __repr__(self):
-        return "<domain '%s'>" % (self.domain)
+        return "<domain '{0}'>".format(self.domain)
 
 
 class Key(BaseResource):
@@ -272,7 +321,7 @@ class Key(BaseResource):
         super(Key, self).__init__()
 
     def __repr__(self):
-        return "<key '%s'>" % (self.id)
+        return "<key '{0}'>".format(self.id)
 
     @property
     def id(self):
@@ -315,7 +364,7 @@ class Process(BaseResource):
         super(Process, self).__init__()
 
     def __repr__(self):
-        return "<process '%s'>" % (self.process)
+        return "<process '{0}'>".format(self.process)
 
     @property
     def type(self):
@@ -364,6 +413,8 @@ class Process(BaseResource):
             data={'type': self.type, 'qty': quantity}
         )
 
+        r.raise_for_status()
+
         return self.app.processes[self.type]
 
 
@@ -379,7 +430,7 @@ class Release(BaseResource):
         super(Release, self).__init__()
 
     def __repr__(self):
-        return "<release '%s'>" % (self.name)
+        return "<release '{0}'>".format(self.name)
 
     def rollback(self):
         """Rolls back the application to this release."""

@@ -41,6 +41,10 @@ class KeyedListResource(object):
         if hasattr(self[0], 'new'):
             return self[0].new(*args, **kwargs)
 
+    def remove(self, key):
+        if hasattr(self[0], 'delete'):
+            return self[key].delete()
+
     def get(self, key):
         for item in self:
             if key in item._ids:
@@ -80,16 +84,6 @@ class ProcessTypeListResource(ProcessListResource):
 
     def scale(self, quantity):
         return self[0].scale(quantity)
-
-
-
-class ProcessTypeListResource(ProcessListResource):
-    """KeyedListResource with basic filtering for process types."""
-
-    def __init__(self, *args, **kwargs):
-
-        super(ProcessTypeListResource, self).__init__(*args, **kwargs)
-
 
 
 
