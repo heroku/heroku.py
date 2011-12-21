@@ -72,7 +72,7 @@ See release history::
     v84
 
     >>> release.env
-    {u'PATH': u'bin:/usr/local/bin:/usr/bin:/bin', u'PYTHONUNBUFFERED': True, u'NEW_RELIC_LOG': u'stdout'}
+    {u'PATH': u'bin:/usr/local/bin:/usr/bin:/bin', u'PYTHONUNBUFFERED': True}
 
     >>> release.pstable
     {u'web': u'gunicorn httpbin:app -b "0.0.0.0:$PORT"'}
