@@ -329,7 +329,6 @@ class Collaborator(BaseResource):
     def __repr__(self):
         return "<collaborator '{0}'>".format(self.email)
 
-
     def new(self, email):
         r = self._h._http_resource(
             method='POST',
