@@ -10,9 +10,13 @@ platform from your applications.
 Usage
 -----
 
-Login with your API Key (`available here <https://api.heroku.com/account>`_)::
+Login with your password::
 
     import heroku
+    cloud = heroku.from_pass('kenneth@heroku.com', 'xxxxxxx')
+
+Or your API Key (`available here <https://api.heroku.com/account>`_)::
+
     cloud = heroku.from_key('YOUR_API_KEY')
 
 Interact with your applications::

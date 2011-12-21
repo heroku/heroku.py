@@ -43,14 +43,14 @@ class HerokuCore(object):
         return self._verify_api_key()
 
     def request_key(self, username, password):
-        # TODO: this doesn't work.
         r = self._http_resource(
             method='POST',
             resource=('login'),
             data={'username': username, 'password': password}
         )
         r.raise_for_status()
-        return r.content
+
+        return json.loads(r.content).get('api_key')
 
     @property
     def is_authenticated(self):
