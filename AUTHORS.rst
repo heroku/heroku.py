@@ -1,4 +1,4 @@
-Herou.py is written and maintained by Kenneth Reitz and
+Heroku.py is written and maintained by Kenneth Reitz and
 various contributors:
 
 Development Lead
