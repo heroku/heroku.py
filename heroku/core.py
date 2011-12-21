@@ -9,7 +9,7 @@ This module provides the base entrypoint for heroku.py.
 
 from .api import Heroku
 
-def key(api_key):
+def from_key(api_key):
 
     h = Heroku()
 

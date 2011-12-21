@@ -24,4 +24,4 @@ __version__ = '0.1.0'
 
 # Module namespace.
 
-from .core import key, get_key
+from .core import from_key
