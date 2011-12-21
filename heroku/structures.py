@@ -14,7 +14,9 @@ class KeyedListResource(object):
     def __init__(self, items=None):
         super(KeyedListResource, self).__init__()
 
+        self._h = None
         self._items = items or list()
+        self._obj = None
 
     def __repr__(self):
         return repr(self._items)
@@ -38,8 +40,15 @@ class KeyedListResource(object):
         return v
 
     def add(self, *args, **kwargs):
-        if hasattr(self[0], 'new'):
+
+        try:
             return self[0].new(*args, **kwargs)
+        except IndexError:
+            o = self._obj()
+            o._h = self._h
+
+            return o.new(*args, **kwargs)
+
 
     def remove(self, key):
         if hasattr(self[0], 'delete'):
@@ -84,6 +93,26 @@ class ProcessTypeListResource(ProcessListResource):
 
     def scale(self, quantity):
         return self[0].scale(quantity)
+
+
+
+class SSHKeyListResource(KeyedListResource):
+    """KeyedListResource with clearing for ssh keys."""
+
+    def __init__(self, *args, **kwargs):
+
+        super(SSHKeyListResource, self).__init__(*args, **kwargs)
+
+    def clear(self):
+        """Removes all SSH keys from a user's system."""
+
+        r = self._h._http_resource(
+            method='DELETE',
+            resource=('user', 'keys'),
+        )
+
+        return r.ok
+
 
 
 

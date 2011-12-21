@@ -127,7 +127,6 @@ class Addon(AvailableAddon):
         r.raise_for_status()
         return self.app.addons[name]
 
-
     def upgrade(self, name):
         """Upgrades an addon to the given tier."""
         # Allow non-namespaced upgrades. (e.g. advanced vs logging:advanced)
@@ -143,7 +142,6 @@ class Addon(AvailableAddon):
         return self.app.addons[name]
 
 
-
 class App(BaseResource):
     """Heroku App."""
 
@@ -157,6 +155,26 @@ class App(BaseResource):
 
     def __repr__(self):
         return "<app '{0}'>".format(self.name)
+
+    def new(self, name=None, stack='cedar'):
+        """Creates a new app."""
+
+        payload = {}
+
+        if name:
+            payload['app[name]'] = name
+
+        if stack:
+            payload['app[stack]'] = stack
+
+        r = self._h._http_resource(
+            method='POST',
+            resource=('apps',),
+            data=payload
+        )
+
+        name = json.loads(r.content).get('name')
+        return self._h.apps.get(name)
 
     @property
     def addons(self):
@@ -206,6 +224,14 @@ class App(BaseResource):
             obj=ConfigVars, app=self
         )
 
+    @property
+    def info(self):
+        """Returns current info for this app."""
+
+        return self._h._get_resource(
+            resource=('apps', self.name),
+            obj=App,
+        )
 
     def rollback(self, release):
         """Rolls back the release to the given version."""
@@ -216,6 +242,45 @@ class App(BaseResource):
         )
         return self.releases[-1]
 
+
+    def rename(self, name):
+        """Renames app to given name."""
+
+        r = self._h._http_resource(
+            method='PUT',
+            resource=('apps', self.name),
+            data={'app[name]': name}
+        )
+        return r.ok
+
+    def transfer(self, user):
+        """Transfers app to given username's account."""
+
+        r = self._h._http_resource(
+            method='PUT',
+            resource=('apps', self.name),
+            data={'app[transfer_owner]': user}
+        )
+        return r.ok
+
+    def maintenance(self, on=True):
+        """Toggles maintenance mode."""
+
+        r = self._h._http_resource(
+            method='POST',
+            resource=('apps', self.name, 'server', 'maintenance'),
+            data={'maintenance_mode': int(on)}
+        )
+        return r.ok
+
+    def destroy(self):
+        """Destoys the app. Do be careful."""
+
+        r = self._h._http_resource(
+            method='DELETE',
+            resource=('apps', self.name)
+        )
+        return r.ok
 
 
 class Collaborator(BaseResource):
@@ -265,7 +330,6 @@ class ConfigVars(object):
         return repr(self.data)
 
     def __setitem__(self, key, value):
-
         # API expects JSON.
         payload = json.dumps({key: value})
 
@@ -302,6 +366,7 @@ class Domain(BaseResource):
     _ints = ['id', 'app_id', ]
     _strs = ['domain', 'base_domain', 'default']
     _dates = ['created_at', 'updated_at']
+    _pks = ['domain', 'id']
 
 
     def __init__(self):
@@ -311,11 +376,29 @@ class Domain(BaseResource):
     def __repr__(self):
         return "<domain '{0}'>".format(self.domain)
 
+    def delete(self):
+        r = self._h._http_resource(
+            method='DELETE',
+            resource=('apps', self.app.name, 'domains', self.domain)
+        )
+
+        return r.ok
+
+    def new(self, name):
+        r = self._h._http_resource(
+            method='POST',
+            resource=('apps', self.app.name, 'domains'),
+            data={'domain_name[domain]': name}
+        )
+
+        return self.app.domains[name]
+
 
 class Key(BaseResource):
     """Heroku SSH Key."""
 
     _strs = ['email', 'contents']
+    _pks = ['id',]
 
     def __init__(self):
         super(Key, self).__init__()
@@ -329,6 +412,16 @@ class Key(BaseResource):
 
         return self.contents.split()[-1]
 
+    def new(self, key):
+        r = self._h._http_resource(
+            method='POST',
+            resource=('user', 'keys'),
+            data=key
+        )
+
+        print key.split()[-1]
+
+        return self._h.keys.get(key.split()[-1])
 
     def delete(self):
         """Deletes the key."""

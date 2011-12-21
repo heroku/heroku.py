@@ -116,6 +116,9 @@ class HerokuCore(object):
             map = KeyedListResource
 
         list_resource = map(items=items)
+        list_resource._h = self
+        list_resource._obj = obj
+
         return list_resource
 
 
@@ -136,12 +139,9 @@ class Heroku(HerokuCore):
     def apps(self):
         return self._get_resources(('apps'), App)
 
-    def get_app(self, name):
-        return self._get_resource(('apps', name), App)
-
     @property
     def keys(self):
-        return self._get_resources(('user', 'keys'), Key)
+        return self._get_resources(('user', 'keys'), Key, map=SSHKeyListResource)
 
     def add_key(self, key):
         r = self._http_resource(method='POST', resource=('user', 'keys'), data=key)
