@@ -65,6 +65,8 @@ Change app configration::
     >>> app.config
     {u'DEBUG': 1, u'PATH': u'bin:/usr/local/bin:/usr/bin:/bin', u'PYTHONUNBUFFERED': True}
 
+    >>> del app.config['DEBUG']
+
 See release history::
 
     >>> app.releases
