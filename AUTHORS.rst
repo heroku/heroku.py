@@ -10,4 +10,5 @@ Development Lead
 Patches and Suggestions
 ```````````````````````
 
+- johtso <johtso@gmail.com>
 - You?
