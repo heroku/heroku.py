@@ -51,6 +51,9 @@ Access the logs::
     >>> print app.logs(num=2, tail=True)
     <generator object stream_decode_response_unicode at 0x101151d20>
 
+
+You can even stream the tail::
+
     >>> for line in app.logs(trail=True):
     ...     print line
 
@@ -89,7 +92,7 @@ See release history::
     >>> release.rollback()
     <release 'v85'>
 
-Add a new app::
+Create a new app::
 
     >>> cloud.apps.add('myapp')
     <app 'myapp'>
