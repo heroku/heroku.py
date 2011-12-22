@@ -89,6 +89,11 @@ See release history::
     >>> release.rollback()
     <release 'v85'>
 
+Add a new app::
+
+    >>> cloud.apps.add('myapp')
+    <app 'myapp'>
+
 Delete the app completely::
 
     >>> app.delete()
