@@ -9,7 +9,7 @@
 heroku.py
 ~~~~~~~~~
 
-:copyright: (c) 2011 by Heroku.
+:copyright: (c) 2012 by Heroku.
 :license: MIT, see LICENSE for more details.
 """
 
@@ -17,10 +17,10 @@ heroku.py
 
 __title__ = 'heroku'
 __author__ = 'Heroku'
-__copyright__ = 'Copyright 2011 Heroku'
+__copyright__ = 'Copyright 2012 Heroku'
 __license__ = 'MIT'
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 # Module namespace.
 
