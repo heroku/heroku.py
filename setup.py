@@ -3,7 +3,6 @@
 
 import os
 import sys
-import heroku
 
 try:
     from setuptools import setup
@@ -21,7 +20,7 @@ required = ['requests>=0.8.6',]
 
 setup(
     name='heroku',
-    version=heroku.__version__,
+    version='0.1.1',
     description='Heroku API Wrapper.',
     long_description=open('README.rst').read() + '\n\n' +
                      open('HISTORY.rst').read(),
