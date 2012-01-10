@@ -54,7 +54,7 @@ Access the logs::
 
 You can even stream the tail::
 
-    >>> for line in app.logs(trail=True):
+    >>> for line in app.logs(tail=True):
     ...     print line
 
     2011-12-21T22:53:47+00:00 heroku[web.1]: State changed from down to created
