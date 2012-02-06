@@ -15,7 +15,11 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
 
-required = ['requests>=0.8.6',]
+required = [
+    'requests>=0.8.6',
+    'python-dateutil==1.5',
+
+]
 
 
 setup(
