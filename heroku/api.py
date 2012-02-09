@@ -18,17 +18,19 @@ HEROKU_URL = 'https://api.heroku.com'
 
 class HerokuCore(object):
     """The core Heroku class."""
-    def __init__(self):
+    def __init__(self, session=None):
         super(HerokuCore, self).__init__()
+        if session is None:
+            session = requests.session()
 
         #: The User's API Key.
         self._api_key = None
         self._api_key_verified = None
-        self._s = requests.session()
         self._heroku_url = HEROKU_URL
+        self._session = session
 
         # We only want JSON back.
-        self._s.headers.update({'Accept': 'application/json'})
+        self._session.headers.update({'Accept': 'application/json'})
 
     def __repr__(self):
         return '<heroku-core at 0x%x>' % (id(self))
@@ -38,7 +40,7 @@ class HerokuCore(object):
         self._api_key = api_key
 
         # Attach auth to session.
-        self._s.auth = ('', self._api_key)
+        self._session.auth = ('', self._api_key)
 
         return self._verify_api_key()
 
@@ -60,7 +62,7 @@ class HerokuCore(object):
             return self._api_key_verified
 
     def _verify_api_key(self):
-        r = self._s.get(self._url_for('apps'))
+        r = self._session.get(self._url_for('apps'))
 
         self._api_key_verified = True if r.ok else False
 
@@ -91,7 +93,7 @@ class HerokuCore(object):
             resource = [resource]
 
         url = self._url_for(*resource)
-        r = self._s.request(method, url, params=params, data=data)
+        r = self._session.request(method, url, params=params, data=data)
 
         # TODO: check heroku's status codes
         r.raise_for_status()
@@ -125,8 +127,8 @@ class HerokuCore(object):
 class Heroku(HerokuCore):
     """The main Heroku class."""
 
-    def __init__(self):
-        super(Heroku, self).__init__()
+    def __init__(self, session=None):
+        super(Heroku, self).__init__(session=session)
 
     def __repr__(self):
         return '<heroku-client at 0x%x>' % (id(self))
