@@ -120,6 +120,7 @@ For example advanced logging for easier debugging::
     >>> my_config = {'verbose': sys.stderr}
     >>> session = requests.session(config=my_config)
     >>> cloud = Heroku(session=session)
+    >>> cloud.authenticate(cloud.request_key('kenneth@heroku.com', 'xxxxxxx'))
     >>> cloud.apps
     2011-12-21T22:53:47+00:00   GET   https://api.heroku.com/apps
     [<app 'myapp'>]
