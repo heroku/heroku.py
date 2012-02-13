@@ -109,7 +109,7 @@ Customized Sessions
 -------------------
 
 heroku.py is based on `requests <http://python-requests.org>`_ and supports all it's features
-that are comming with sessions by allowing you to forward your requests session.
+that are coming with sessions by allowing you to forward your requests session.
 
 For example advanced logging for easier debugging::
 
