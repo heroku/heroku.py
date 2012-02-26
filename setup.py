@@ -10,21 +10,19 @@ except ImportError:
     from distutils.core import setup
 
 
-
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
 
 required = [
-    'requests>=0.8.6',
-    'python-dateutil==1.5',
-
+    'requests>=0.10.0',
+    'python-dateutil==1.5'
 ]
 
 
 setup(
     name='heroku',
-    version='0.1.1',
+    version='0.1.2',
     description='Heroku API Wrapper.',
     long_description=open('README.rst').read() + '\n\n' +
                      open('HISTORY.rst').read(),
