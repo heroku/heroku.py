@@ -105,6 +105,27 @@ Delete the app completely::
 And much more. Detailed docs forthcoming.
 
 
+Customized Sessions
+-------------------
+
+heroku.py is based on `requests <http://python-requests.org>`_ and supports all it's features
+that are coming with sessions by allowing you to forward your requests session.
+
+For example advanced logging for easier debugging::
+
+    >>> import sys
+    >>> import requests
+    >>> from heroku.api import Heroku
+
+    >>> my_config = {'verbose': sys.stderr}
+    >>> session = requests.session(config=my_config)
+    >>> cloud = Heroku(session=session)
+    >>> cloud.authenticate(cloud.request_key('kenneth@heroku.com', 'xxxxxxx'))
+    >>> cloud.apps
+    2011-12-21T22:53:47+00:00   GET   https://api.heroku.com/apps
+    [<app 'myapp'>]
+
+
 Installation
 ------------
 
