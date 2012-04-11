@@ -41,17 +41,15 @@ class KeyedListResource(object):
         return v
 
     def add(self, *args, **kwargs):
-        full_kwargs = {}
-        full_kwargs.update(self._kwargs)
-        full_kwargs.update(kwargs)
 
         try:
-            return self[0].new(*args, **full_kwargs)
+            return self[0].new(*args, **kwargs)
         except IndexError:
             o = self._obj()
             o._h = self._h
+            o.__dict__.update(self._kwargs)
 
-            return o.new(*args, **full_kwargs)
+            return o.new(*args, **kwargs)
 
 
     def remove(self, key):
