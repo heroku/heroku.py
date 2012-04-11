@@ -120,6 +120,7 @@ class HerokuCore(object):
         list_resource = map(items=items)
         list_resource._h = self
         list_resource._obj = obj
+        list_resource._kwargs = kwargs
 
         return list_resource
 
