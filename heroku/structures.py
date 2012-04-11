@@ -17,6 +17,7 @@ class KeyedListResource(object):
         self._h = None
         self._items = items or list()
         self._obj = None
+        self._kwargs = {}
 
     def __repr__(self):
         return repr(self._items)
@@ -46,6 +47,7 @@ class KeyedListResource(object):
         except IndexError:
             o = self._obj()
             o._h = self._h
+            o.__dict__.update(self._kwargs)
 
             return o.new(*args, **kwargs)
 
