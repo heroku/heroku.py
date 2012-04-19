@@ -7,11 +7,12 @@ heroku.api
 This module provides the basic API interface for Heroku.
 """
 
-import requests
 from .compat import json
 from .helpers import is_collection
-from .structures import KeyedListResource
 from .models import *
+from .structures import KeyedListResource
+from heroku.models import Feature
+import requests
 
 HEROKU_URL = 'https://api.heroku.com'
 
@@ -145,6 +146,11 @@ class Heroku(HerokuCore):
     @property
     def keys(self):
         return self._get_resources(('user', 'keys'), Key, map=SSHKeyListResource)
+    
+    @property
+    def labs(self):
+        return self._get_resources(('features'), Feature, map=filtered_key_list_resource_factory(lambda obj: obj.kind == 'user'))
+        
 
 
 class ResponseError(ValueError):
