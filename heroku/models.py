@@ -7,12 +7,12 @@ heroku.models
 This module contains the models that comprise the Heroku API.
 """
 
-import json
-from urllib import quote
-
-import requests
 from .helpers import to_python
 from .structures import *
+from urllib import quote
+import json
+import requests
+
 
 
 class BaseResource(object):
@@ -232,6 +232,13 @@ class App(BaseResource):
         return self._h._get_resource(
             resource=('apps', self.name),
             obj=App,
+        )
+        
+    @property
+    def labs(self):
+        return self._h._get_resources(
+            resource=('features'),
+            obj=Feature, params={'app': self.name}, app=self, map=filtered_key_list_resource_factory(lambda item: item.kind == 'app')
         )
 
     def rollback(self, release):
@@ -569,3 +576,30 @@ class Stack(BaseResource):
         super(Stack, self).__init__()
 
 
+class Feature(BaseResource):
+    _strs = ['name', 'kind', 'summary', 'docs',]
+    _bools = ['enabled']
+    _pks = ['name']
+    
+    def __init__(self):
+        self.app = None
+        super(Feature, self).__init__()
+
+    def __repr__(self):
+        return "<feature '{0}'>".format(self.name)
+    
+    def enable(self):
+        r = self._h._http_resource(
+            method='POST',
+            resource=('features', self.name),
+            params={'app': self.app.name if self.app else ''}
+        )
+        return r.ok
+    
+    def disable(self):
+        r = self._h._http_resource(
+            method='DELETE',
+            resource=('features', self.name),
+            params={'app': self.app.name if self.app else ''}
+        )
+        return r.ok
