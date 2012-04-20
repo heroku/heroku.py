@@ -96,6 +96,9 @@ class HerokuCore(object):
         r = self._session.request(method, url, params=params, data=data)
 
         # TODO: check heroku's status codes
+        if r.status_code == 422:
+            print(r.content)
+        
         r.raise_for_status()
 
         return r
