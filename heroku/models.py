@@ -498,6 +498,17 @@ class Process(BaseResource):
     def __repr__(self):
         return "<process '{0}'>".format(self.process)
 
+    def new(self, type, quantity):
+        r = self._h._http_resource(
+            method='POST',
+            resource=('apps', self.app.name, 'ps', 'scale'),
+            data={'type': type, 'qty': quantity}
+        )
+
+        r.raise_for_status()
+
+        return self.app.processes[type]
+
     @property
     def type(self):
         return self.process.split('.')[0]
