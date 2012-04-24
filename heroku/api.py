@@ -12,6 +12,7 @@ from .helpers import is_collection
 from .models import *
 from .structures import KeyedListResource
 from heroku.models import Feature
+from requests.exceptions import HTTPError
 import requests
 
 HEROKU_URL = 'https://api.heroku.com'
@@ -96,7 +97,11 @@ class HerokuCore(object):
         url = self._url_for(*resource)
         r = self._session.request(method, url, params=params, data=data)
 
-        # TODO: check heroku's status codes
+        if r.status_code == 422:
+            http_error = HTTPError('%s Client Error: %s' % (r.status_code, r.content))
+            http_error.response = r
+            raise http_error
+        
         r.raise_for_status()
 
         return r
