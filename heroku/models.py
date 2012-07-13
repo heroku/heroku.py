@@ -487,7 +487,7 @@ class Process(BaseResource):
 
     _ints = ['elapsed']
     _bools = ['attached']
-    _dates = ['transitioned_at']
+    _dates = []
     _pks = ['process', 'upid']
 
 
