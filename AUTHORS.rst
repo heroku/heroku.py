@@ -11,4 +11,5 @@ Patches and Suggestions
 ```````````````````````
 
 - johtso <johtso@gmail.com>
+- skoczen <skoczen@gmail.com>
 - You?
