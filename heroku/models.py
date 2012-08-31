@@ -109,14 +109,20 @@ class Addon(AvailableAddon):
     """Heroku Addon."""
 
     _pks = ['name', 'type']
+    _strs = ['name', 'description', 'url', 'state', 'attachment_name']
 
     def __repr__(self):
         return "<addon '{0}'>".format(self.name)
 
     def delete(self):
+        addon_name = self.name
+        try:
+            addon_name = self.attachment_name
+        except:
+            pass
         r = self._h._http_resource(
             method='DELETE',
-            resource=('apps', self.app.name, 'addons', self.name)
+            resource=('apps', self.app.name, 'addons', addon_name)
         )
         return r.ok
 
