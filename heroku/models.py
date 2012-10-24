@@ -558,7 +558,10 @@ class Process(BaseResource):
 
         r.raise_for_status()
 
-        return self.app.processes[self.type]
+        if self.type in self.app.processes:
+            return self.app.processes[self.type]
+        else:
+            return ProcessListResource()
 
 
 
