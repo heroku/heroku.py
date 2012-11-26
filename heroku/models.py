@@ -313,7 +313,7 @@ class App(BaseResource):
         )
 
         # Grab the actual logs.
-        r = requests.get(r.content, verify=False)
+        r = requests.get(r.content, verify=False, prefetch=False)
 
         if not tail:
             return r.content
