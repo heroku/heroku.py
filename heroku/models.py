@@ -458,8 +458,6 @@ class Key(BaseResource):
             data=key
         )
 
-        print key.split()[-1]
-
         return self._h.keys.get(key.split()[-1])
 
     def delete(self):
