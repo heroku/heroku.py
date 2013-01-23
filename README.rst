@@ -99,7 +99,7 @@ Create a new app::
 
 Delete the app completely::
 
-    >>> app.delete()
+    >>> app.destroy()
     True
 
 And much more. Detailed docs forthcoming.
