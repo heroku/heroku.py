@@ -120,15 +120,16 @@ class Addon(AvailableAddon):
         )
         return r.ok
 
-    def new(self, name):
+    def new(self, name, params=None):
         r = self._h._http_resource(
             method='POST',
-            resource=('apps', self.app.name, 'addons', name)
+            resource=('apps', self.app.name, 'addons', name),
+            params=params
         )
         r.raise_for_status()
         return self.app.addons[name]
 
-    def upgrade(self, name):
+    def upgrade(self, name, params=None):
         """Upgrades an addon to the given tier."""
         # Allow non-namespaced upgrades. (e.g. advanced vs logging:advanced)
         if ':' not in name:
@@ -137,6 +138,7 @@ class Addon(AvailableAddon):
         r = self._h._http_resource(
             method='PUT',
             resource=('apps', self.app.name, 'addons', quote(name)),
+            params=params,
             data=' '   # Server weirdness.
         )
         r.raise_for_status()
