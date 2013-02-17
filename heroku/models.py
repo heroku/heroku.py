@@ -511,8 +511,7 @@ class Process(BaseResource):
         )
 
         r.raise_for_status()
-
-        return self.upid
+        return self.app.processes[r.json()['process']]
 
     @property
     def type(self):
