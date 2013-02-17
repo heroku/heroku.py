@@ -498,16 +498,20 @@ class Process(BaseResource):
     def __repr__(self):
         return "<process '{0}'>".format(self.process)
 
-    def new(self, type, quantity):
+    def new(self, command, attach=""):
+        """
+        Creates a new Process
+        Attach: If attach=True it will return a rendezvous connection point, for streaming stdout/stderr
+        Command: The actual command it will run
+        """
         r = self._h._http_resource(
             method='POST',
-            resource=('apps', self.app.name, 'ps', 'scale'),
-            data={'type': type, 'qty': quantity}
+            resource=('apps', self.app.name, 'ps',),
+            data={'attach': attach, 'command': command}
         )
 
         r.raise_for_status()
-
-        return self.app.processes[type]
+        return self.app.processes[r.json()['process']]
 
     @property
     def type(self):
