@@ -292,7 +292,7 @@ class App(BaseResource):
         )
         return r.ok
 
-    def logs(self, num=None, source=None, tail=False):
+    def logs(self, num=None, source=None, ps=None, tail=False):
         """Returns the requested log."""
 
         # Bootstrap payload package.
@@ -307,6 +307,9 @@ class App(BaseResource):
         if tail:
             payload['tail'] = 1
 
+        if ps:
+            payload['ps'] = ps
+
         # Grab the URL of the logplex endpoint.
         r = self._h._http_resource(
             method='GET',
@@ -315,7 +318,7 @@ class App(BaseResource):
         )
 
         # Grab the actual logs.
-        r = requests.get(r.content, verify=False, prefetch=False)
+        r = requests.get(r.content, verify=False)
 
         if not tail:
             return r.content
