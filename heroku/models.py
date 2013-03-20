@@ -235,7 +235,7 @@ class App(BaseResource):
             resource=('apps', self.name),
             obj=App,
         )
-        
+
     @property
     def labs(self):
         return self._h._get_resources(
@@ -511,7 +511,7 @@ class Process(BaseResource):
         )
 
         r.raise_for_status()
-        return self.app.processes[r.json()['process']]
+        return self.app.processes[r.json['process']]
 
     @property
     def type(self):
@@ -595,14 +595,14 @@ class Feature(BaseResource):
     _strs = ['name', 'kind', 'summary', 'docs',]
     _bools = ['enabled']
     _pks = ['name']
-    
+
     def __init__(self):
         self.app = None
         super(Feature, self).__init__()
 
     def __repr__(self):
         return "<feature '{0}'>".format(self.name)
-    
+
     def enable(self):
         r = self._h._http_resource(
             method='POST',
@@ -610,7 +610,7 @@ class Feature(BaseResource):
             params={'app': self.app.name if self.app else ''}
         )
         return r.ok
-    
+
     def disable(self):
         r = self._h._http_resource(
             method='DELETE',
