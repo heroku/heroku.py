@@ -1,5 +1,11 @@
 History
 -------
+0.1.4 (2013-05-30)
+++++++++++++++++++
+
+* Ignore what it's netrc
+* Fix Process.new() so it can spawn one-off processes
+* 'ps' keyword support for app logs
 
 0.1.3 (2013-05-01)
 ++++++++++++++++++
