@@ -298,7 +298,7 @@ class App(BaseResource):
         )
         return r.ok
 
-    def logs(self, num=None, source=None, tail=False):
+    def logs(self, num=None, source=None, ps=None, tail=False):
         """Returns the requested log."""
 
         # Bootstrap payload package.
@@ -309,6 +309,9 @@ class App(BaseResource):
 
         if source:
             payload['source'] = source
+
+        if ps:
+            payload['ps'] = ps
 
         if tail:
             payload['tail'] = 1
