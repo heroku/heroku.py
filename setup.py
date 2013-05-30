@@ -15,14 +15,14 @@ if sys.argv[-1] == 'publish':
     sys.exit()
 
 required = [
-    'requests>=0.10.0',
+    'requests>=1.0.0',
     'python-dateutil==1.5'
 ]
 
 
 setup(
     name='heroku',
-    version='0.1.3',
+    version='0.1.4',
     description='Heroku API Wrapper.',
     long_description=open('README.rst').read() + '\n\n' +
                      open('HISTORY.rst').read(),
@@ -42,7 +42,8 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        # 'Programming Language :: Python :: 3.0',
-        # 'Programming Language :: Python :: 3.1',
+        'Programming Language :: Python :: 3.0',
+        'Programming Language :: Python :: 3.1',
+        'Programming Language :: Python :: 3.2',
     ),
 )
