@@ -9,10 +9,14 @@ This module contains the models that comprise the Heroku API.
 
 from .helpers import to_python
 from .structures import *
-from urllib import quote
 import json
 import requests
+import sys
 
+if sys.version_info > (3, 0):
+    from urllib.parse import quote
+else:
+    from urllib import quote
 
 
 class BaseResource(object):

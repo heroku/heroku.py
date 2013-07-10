@@ -11,6 +11,11 @@ from datetime import datetime
 
 from dateutil.parser import parse as parse_datetime
 
+import sys
+
+if sys.version_info > (3, 0):
+    basestring = (str, bytes)
+
 def is_collection(obj):
     """Tests if an object is a collection."""
 
