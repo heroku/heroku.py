@@ -9,10 +9,14 @@ This module contains the models that comprise the Heroku API.
 
 from .helpers import to_python
 from .structures import *
-from urllib import quote
 import json
 import requests
+import sys
 
+if sys.version_info > (3, 0):
+    from urllib.parse import quote
+else:
+    from urllib import quote
 
 
 class BaseResource(object):
@@ -40,7 +44,7 @@ class BaseResource(object):
             setattr(self, attr, None)
 
     def _keys(self):
-        return self._strs + self._ints + self._dates + self._bools + self._map.keys()
+        return self._strs + self._ints + self._dates + self._bools + list(self._map.keys())
 
     @property
     def _id(self):
@@ -324,7 +328,7 @@ class App(BaseResource):
         )
 
         # Grab the actual logs.
-        r = requests.get(r.content, verify=False, stream=True)
+        r = requests.get(r.content.decode("utf-8"), verify=False, stream=True)
 
         if not tail:
             return r.content

@@ -11,6 +11,11 @@ from datetime import datetime
 
 from dateutil.parser import parse as parse_datetime
 
+import sys
+
+if sys.version_info > (3, 0):
+    basestring = (str, bytes)
+
 def is_collection(obj):
     """Tests if an object is a collection."""
 
@@ -54,7 +59,7 @@ def to_python(obj,
             in_date = in_dict.get(in_key)
             try:
                 out_date = parse_datetime(in_date)
-            except TypeError, e:
+            except TypeError as e:
                 raise e
                 out_date = None
 
