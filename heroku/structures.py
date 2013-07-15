@@ -76,7 +76,7 @@ class ProcessListResource(KeyedListResource):
 
         try:
             return super(ProcessListResource, self).__getitem__(key)
-        except KeyError, why:
+        except KeyError as why:
 
             c = [p for p in self._items if key == p.type]
 

@@ -54,7 +54,7 @@ class HerokuCore(object):
         )
         r.raise_for_status()
 
-        return json.loads(r.content).get('api_key')
+        return json.loads(r.content.decode("utf-8")).get('api_key')
 
     @property
     def is_authenticated(self):
@@ -98,7 +98,8 @@ class HerokuCore(object):
         r = self._session.request(method, url, params=params, data=data)
 
         if r.status_code == 422:
-            http_error = HTTPError('%s Client Error: %s' % (r.status_code, r.content))
+            http_error = HTTPError('%s Client Error: %s' %
+                                   (r.status_code, r.content.decode("utf-8")))
             http_error.response = r
             raise http_error
         
@@ -109,14 +110,14 @@ class HerokuCore(object):
     def _get_resource(self, resource, obj, params=None, **kwargs):
         """Returns a mapped object from an HTTP resource."""
         r = self._http_resource('GET', resource, params=params)
-        item = self._resource_deserialize(r.content)
+        item = self._resource_deserialize(r.content.decode("utf-8"))
 
         return obj.new_from_dict(item, h=self, **kwargs)
 
     def _get_resources(self, resource, obj, params=None, map=None, **kwargs):
         """Returns a list of mapped objects from an HTTP resource."""
         r = self._http_resource('GET', resource, params=params)
-        d_items = self._resource_deserialize(r.content)
+        d_items = self._resource_deserialize(r.content.decode("utf-8"))
 
         items =  [obj.new_from_dict(item, h=self, **kwargs) for item in d_items]
 
