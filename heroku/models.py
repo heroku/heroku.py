@@ -94,6 +94,17 @@ class BaseResource(object):
         return d
 
 
+class Account(BaseResource):
+
+    _strs = ['email' ,'id']
+    _bools = ['beta', 'verified', 'allow_tracking']
+    _pks = ['id']
+    _dates = ['created_at', 'updated_at', 'last_login']
+
+    def __repr__(self):
+        return "<account '{0}'>".format(self.email)
+
+
 class AvailableAddon(BaseResource):
     """Heroku Addon."""
 

@@ -102,7 +102,7 @@ class HerokuCore(object):
                                    (r.status_code, r.content.decode("utf-8")))
             http_error.response = r
             raise http_error
-        
+
         r.raise_for_status()
 
         return r
@@ -142,6 +142,10 @@ class Heroku(HerokuCore):
         return '<heroku-client at 0x%x>' % (id(self))
 
     @property
+    def account(self):
+        return self._get_resource(('account'), Account)
+
+    @property
     def addons(self):
         return self._get_resources(('addons'), Addon)
 
@@ -152,11 +156,11 @@ class Heroku(HerokuCore):
     @property
     def keys(self):
         return self._get_resources(('user', 'keys'), Key, map=SSHKeyListResource)
-    
+
     @property
     def labs(self):
         return self._get_resources(('features'), Feature, map=filtered_key_list_resource_factory(lambda obj: obj.kind == 'user'))
-        
+
 
 
 class ResponseError(ValueError):
