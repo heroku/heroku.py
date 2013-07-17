@@ -97,9 +97,9 @@ class BaseResource(object):
 class Account(BaseResource):
 
     _strs = ['email' ,'id']
-    _bools = ['beta', 'verified', 'allow_tracking']
+    _bools = ['allow_tracking', 'beta', 'confirmed', 'verified']
     _pks = ['id']
-    _dates = ['created_at', 'updated_at', 'last_login']
+    _dates = ['confirmed_at', 'created_at', 'last_login', 'updated_at']
 
     def __repr__(self):
         return "<account '{0}'>".format(self.email)
