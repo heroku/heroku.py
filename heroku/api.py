@@ -24,6 +24,7 @@ class HerokuCore(object):
         super(HerokuCore, self).__init__()
         if session is None:
             session = requests.session()
+            session.trust_env = False
 
         #: The User's API Key.
         self._api_key = None
