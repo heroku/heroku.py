@@ -9,9 +9,9 @@ This module provides the basic API interface for Heroku.
 
 from .compat import json
 from .helpers import is_collection
-from .models import *
-from .structures import KeyedListResource
-from heroku.models import Feature
+from .models import Account, Addon, App, Key, Feature
+from .structures import KeyedListResource, SSHKeyListResource
+from .structures import filtered_key_list_resource_factory
 from requests.exceptions import HTTPError
 import requests
 
