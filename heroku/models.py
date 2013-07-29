@@ -266,7 +266,7 @@ class App(BaseResource):
 
     def rollback(self, release):
         """Rolls back the release to the given version."""
-        r = self._h._http_resource(
+        self._h._http_resource(
             method='POST',
             resource=('apps', self.name, 'releases'),
             data={'rollback': release}
@@ -363,7 +363,7 @@ class Collaborator(BaseResource):
         return "<collaborator '{0}'>".format(self.email)
 
     def new(self, email):
-        r = self._h._http_resource(
+        self._h._http_resource(
             method='POST',
             resource=('apps', self.app.name, 'collaborators'),
             data={'collaborator[email]': email}
@@ -450,7 +450,7 @@ class Domain(BaseResource):
         return r.ok
 
     def new(self, name):
-        r = self._h._http_resource(
+        self._h._http_resource(
             method='POST',
             resource=('apps', self.app.name, 'domains'),
             data={'domain_name[domain]': name}
@@ -478,7 +478,7 @@ class Key(BaseResource):
         return self.contents.split()[-1]
 
     def new(self, key):
-        r = self._h._http_resource(
+        self._h._http_resource(
             method='POST',
             resource=('user', 'keys'),
             data=key
