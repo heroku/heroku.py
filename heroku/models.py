@@ -8,7 +8,7 @@ This module contains the models that comprise the Heroku API.
 """
 
 from .helpers import to_python
-from .structures import *
+from .structures import ProcessListResource, filtered_key_list_resource_factory
 import json
 import requests
 import sys
