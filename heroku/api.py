@@ -24,7 +24,6 @@ class HerokuCore(object):
         super(HerokuCore, self).__init__()
         if session is None:
             session = requests.session()
-            session.trust_env = False
 
         #: The User's API Key.
         self._api_key = None
@@ -37,6 +36,15 @@ class HerokuCore(object):
 
     def __repr__(self):
         return '<heroku-core at 0x%x>' % (id(self))
+
+    def _get_trust_env(self):
+        return self._session.trust_env
+
+    def _set_trust_env(self, value):
+        self._session.trust_env = value
+
+    trust_env = property(_get_trust_env, _set_trust_env)
+    del(_get_trust_env, _set_trust_env)
 
     def authenticate(self, api_key):
         """Logs user into Heroku with given api_key."""
