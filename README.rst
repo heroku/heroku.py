@@ -19,6 +19,10 @@ Or your API Key (`available here <https://api.heroku.com/account>`_)::
 
     cloud = heroku.from_key('YOUR_API_KEY')
 
+Or if you are on your local machine with the (`Heroku Toolbelt <https://toolbelt.heroku.com>`_) already installed::
+
+    cloud = heroku.from_env()
+
 Interact with your applications::
 
     >>> cloud.apps
