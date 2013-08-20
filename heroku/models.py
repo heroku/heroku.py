@@ -84,22 +84,53 @@ class BaseResource(object):
             int_keys=cls._ints,
             date_keys=cls._dates,
             bool_keys=cls._bools,
-            dict_keys= cls._dicts,
+            dict_keys=cls._dicts,
             object_map=cls._map,
-            _h = h
+            _h=h
         )
 
         d.__dict__.update(kwargs)
 
         return d
 
+    @classmethod
+    def new_for_create(cls, h=None, **kwargs):
+        d = to_python(
+            obj=cls(),
+            in_dict={},
+            str_keys=cls._strs,
+            int_keys=cls._ints,
+            date_keys=cls._dates,
+            bool_keys=cls._bools,
+            dict_keys=cls._dicts,
+            object_map=cls._map,
+            _h=h
+        )
+        d.__dict__.update(kwargs)
+
+        return d
+
+
+class Plan(BaseResource):
+    """Heroku Addon."""
+
+    _strs = ['id', 'name']
+    _pks = ['id', 'name']
+
+    def __init__(self):
+        self.app = None
+        super(Plan, self).__init__()
+
+    def __repr__(self):
+        return "<plan '{0} {1}'>".format(self.id, self.name)
+
 
 class Account(BaseResource):
 
-    _strs = ['email' ,'id']
-    _bools = ['allow_tracking', 'beta', 'confirmed', 'verified']
+    _strs = ['email', 'id']
+    _bools = ['allow_tracking', 'beta', 'verified']
     _pks = ['id']
-    _dates = ['confirmed_at', 'created_at', 'last_login', 'updated_at']
+    _dates = ['created_at', 'last_login', 'updated_at']
 
     def __repr__(self):
         return "<account '{0}'>".format(self.email)
@@ -108,9 +139,9 @@ class Account(BaseResource):
 class AvailableAddon(BaseResource):
     """Heroku Addon."""
 
-    _strs = ['name', 'description', 'url', 'state']
-    _bools = ['beta',]
-    _pks = ['name']
+    _strs = ['id', 'name']
+    _pks = ['id']
+    _dates = ['created_at', 'updated_at']
 
     def __repr__(self):
         return "<available-addon '{0}'>".format(self.name)
@@ -123,32 +154,21 @@ class AvailableAddon(BaseResource):
 class Addon(AvailableAddon):
     """Heroku Addon."""
 
-    _pks = ['name', 'type']
-    _strs = ['name', 'description', 'url', 'state', 'attachment_name']
+    _strs = ['id', 'config']
+    _pks = ['id']
+    _map = {'plan': Plan}
+    _dates = ['created_at', 'updated_at']
 
     def __repr__(self):
-        return "<addon '{0}'>".format(self.name)
+        return "<addon '{0}'>".format(self.plan.name)
 
     def delete(self):
-        addon_name = self.name
-        try:
-            addon_name = self.attachment_name
-        except:
-            pass
         r = self._h._http_resource(
             method='DELETE',
-            resource=('apps', self.app.name, 'addons', addon_name)
-        )
-        return r.ok
-
-    def new(self, name, params=None):
-        r = self._h._http_resource(
-            method='POST',
-            resource=('apps', self.app.name, 'addons', name),
-            params=params
+            resource=('apps', self.app.name, 'addons', self.plan.id)
         )
         r.raise_for_status()
-        return self.app.addons[name]
+        return r.ok
 
     def upgrade(self, name, params=None):
         """Upgrades an addon to the given tier."""
@@ -169,9 +189,10 @@ class Addon(AvailableAddon):
 class App(BaseResource):
     """Heroku App."""
 
-    _strs = ['name', 'create_status', 'stack', 'repo_migrate_status']
-    _ints = ['id', 'slug_size', 'repo_size', 'dynos', 'workers']
-    _dates = ['created_at',]
+    _strs = ['buildpack_provided_description', 'git_url', 'id', 'name', 'owner:email', 'owner:id', 'region:id', 'region:name', 'stack', 'web_url']
+    _ints = ['slug_size', 'repo_size']
+    _bools = ['maintenance']
+    _dates = ['archived_at', 'created_at', 'released_at', 'updated_at']
     _pks = ['name', 'id']
 
     def __init__(self):
@@ -180,32 +201,38 @@ class App(BaseResource):
     def __repr__(self):
         return "<app '{0}'>".format(self.name)
 
-    def new(self, name=None, stack='cedar'):
-        """Creates a new app."""
-
-        payload = {}
-
-        if name:
-            payload['app[name]'] = name
-
-        if stack:
-            payload['app[stack]'] = stack
-
-        r = self._h._http_resource(
-            method='POST',
-            resource=('apps',),
-            data=payload
-        )
-
-        name = json.loads(r.content).get('name')
-        return self._h.apps.get(name)
-
     @property
     def addons(self):
         return self._h._get_resources(
             resource=('apps', self.name, 'addons'),
             obj=Addon, app=self
         )
+
+    def install_addon(self, plan_id=None, plan_name=None, config=None):
+
+        payload = {}
+        plan = {}
+        print "plan_id = {0}".format(plan_id)
+        print "plan_name = {0}".format(plan_name)
+        assert(plan_id or plan_name)
+        if plan_id:
+            plan['id'] = plan_id
+
+        if plan_name:
+            plan['name'] = plan_name
+
+        if config:
+            payload['config'] = config
+        payload['plan'] = plan
+
+        r = self._h._http_resource(
+            method='POST',
+            resource=('apps', self.name, 'addons'),
+            data=payload
+        )
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return Addon.new_from_dict(item, h=self._h)
 
     @property
     def collaborators(self):
@@ -645,3 +672,16 @@ class Feature(BaseResource):
             params={'app': self.app.name if self.app else ''}
         )
         return r.ok
+
+
+class RateLimit(BaseResource):
+    _strs = ['remaining']
+    _bools = []
+    _pks = ['remaining']
+
+    def __init__(self):
+        self.app = None
+        super(RateLimit, self).__init__()
+
+    def __repr__(self):
+        return "<RateLimit '{0}'>".format(self.remaining)

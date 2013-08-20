@@ -30,12 +30,15 @@ class HerokuCore(object):
         self._api_key_verified = None
         self._heroku_url = HEROKU_URL
         self._session = session
+        self._ratelimit_remaining = None
 
         # We only want JSON back.
-        self._session.headers.update({'Accept': 'application/json'})
+        #self._session.headers.update({'Accept': 'application/json'})
+        self._session.headers.update({'Accept': 'application/vnd.heroku+json; version=3'})
 
     def __repr__(self):
         return '<heroku-core at 0x%x>' % (id(self))
+
 
     def authenticate(self, api_key):
         """Logs user into Heroku with given api_key."""
@@ -95,7 +98,15 @@ class HerokuCore(object):
             resource = [resource]
 
         url = self._url_for(*resource)
+        print url
         r = self._session.request(method, url, params=params, data=data)
+        from pprint import pprint
+        #pprint(self._session.headers)
+        #pprint(method)
+        #pprint(params)
+        #pprint(data)
+        #pprint(r.headers)
+        self._ratelimit_remaining = r.headers['ratelimit-remaining']
 
         if r.status_code == 422:
             http_error = HTTPError('%s Client Error: %s' %
@@ -104,6 +115,8 @@ class HerokuCore(object):
             raise http_error
 
         r.raise_for_status()
+
+        print r.content.decode("utf-8")
 
         return r
 
@@ -149,9 +162,54 @@ class Heroku(HerokuCore):
     def addons(self):
         return self._get_resources(('addons'), Addon)
 
+    def addon_services(self, id_or_name=None):
+        if id_or_name is not None:
+            return self._get_resource(('addon-services', id_or_name), AvailableAddon)
+        else:
+            return self._get_resources(('addon-services'), AvailableAddon)
+
     @property
     def apps(self):
         return self._get_resources(('apps'), App)
+
+    def app(self, id_or_name):
+        return self._get_resource(('apps/{0:s}'.format(id_or_name)), App)
+
+    def create_app(self, name=None, stack='cedar', region_id=None, region_name=None):
+        """Creates a new app."""
+
+        payload = {}
+        region = {}
+
+        if name:
+            payload['name'] = name
+
+        if stack:
+            payload['stack'] = stack
+
+        if region_id:
+            region['id'] = region_id
+        if region_name:
+            region['name'] = region_name
+        if region_id or region_name:
+            #payload['region'] = region
+            pass
+
+        print payload
+        try:
+            r = self._http_resource(
+                method='POST',
+                resource=('apps',),
+                data=payload
+            )
+            name = json.loads(r.content).get('name')
+        except HTTPError as e:
+            if "Name is already taken" in str(e):
+                print "Warning - {0:s}".format(e)
+                pass
+            else:
+                raise e
+        return self.app(name)
 
     @property
     def keys(self):
@@ -159,8 +217,19 @@ class Heroku(HerokuCore):
 
     @property
     def labs(self):
-        return self._get_resources(('features'), Feature, map=filtered_key_list_resource_factory(lambda obj: obj.kind == 'user'))
+        return self._get_resources(('account/features'), Feature, map=filtered_key_list_resource_factory(lambda obj: obj.kind == 'user'))
 
+    @property
+    def rate_limit(self):
+        return self._get_resource(('account/rate-limits'), RateLimit)
+
+    def ratelimit_remaining(self):
+
+        if self._ratelimit_remaining is not None:
+            return self._ratelimit_remaining
+        else:
+            self.rate_limit
+            return self._ratelimit_remaining
 
 
 class ResponseError(ValueError):

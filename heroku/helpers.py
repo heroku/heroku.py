@@ -57,13 +57,16 @@ def to_python(obj,
     if date_keys:
         for in_key in date_keys:
             in_date = in_dict.get(in_key)
-            try:
-                out_date = parse_datetime(in_date)
-            except TypeError as e:
-                raise e
-                out_date = None
+            if in_date is not None:
+                try:
+                    out_date = parse_datetime(in_date)
+                except TypeError as e:
+                    raise e
+                    out_date = None
 
-            d[in_key] = out_date
+                d[in_key] = out_date
+            else:
+                d[in_key] = None
 
     if int_keys:
         for in_key in int_keys:
