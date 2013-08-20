@@ -165,7 +165,7 @@ class Addon(AvailableAddon):
     def delete(self):
         r = self._h._http_resource(
             method='DELETE',
-            resource=('apps', self.app.name, 'addons', self.plan.id)
+            resource=('apps', self.app.name, 'addons', self.id)
         )
         r.raise_for_status()
         return r.ok
@@ -177,7 +177,7 @@ class Addon(AvailableAddon):
             name = '{0}:{1}'.format(self.type, name)
 
         r = self._h._http_resource(
-            method='PUT',
+            method='PATCH',
             resource=('apps', self.app.name, 'addons', quote(name)),
             params=params,
             data=' '   # Server weirdness.
@@ -212,6 +212,8 @@ class App(BaseResource):
 
         payload = {}
         plan = {}
+        if not config:
+            config = {}
         print "plan_id = {0}".format(plan_id)
         print "plan_name = {0}".format(plan_name)
         assert(plan_id or plan_name)
@@ -221,15 +223,16 @@ class App(BaseResource):
         if plan_name:
             plan['name'] = plan_name
 
-        if config:
-            payload['config'] = config
+        payload['config'] = config
         payload['plan'] = plan
 
         r = self._h._http_resource(
             method='POST',
             resource=('apps', self.name, 'addons'),
-            data=payload
+            data=self._h._resource_serialize(payload)
         )
+
+        print r.content.decode("utf-8")
         r.raise_for_status()
         item = self._h._resource_deserialize(r.content.decode("utf-8"))
         return Addon.new_from_dict(item, h=self._h)

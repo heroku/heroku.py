@@ -34,7 +34,7 @@ class HerokuCore(object):
 
         # We only want JSON back.
         #self._session.headers.update({'Accept': 'application/json'})
-        self._session.headers.update({'Accept': 'application/vnd.heroku+json; version=3'})
+        self._session.headers.update({'Accept': 'application/vnd.heroku+json; version=3', 'Content-Type': 'application/json'})
 
     def __repr__(self):
         return '<heroku-core at 0x%x>' % (id(self))
@@ -114,9 +114,9 @@ class HerokuCore(object):
             http_error.response = r
             raise http_error
 
+        if r.status_code != 200 or r.status_code != 304:
+            print r.content.decode("utf-8")
         r.raise_for_status()
-
-        print r.content.decode("utf-8")
 
         return r
 
@@ -164,7 +164,7 @@ class Heroku(HerokuCore):
 
     def addon_services(self, id_or_name=None):
         if id_or_name is not None:
-            return self._get_resource(('addon-services', id_or_name), AvailableAddon)
+            return self._get_resource(('addon-services/{0}'.format(id_or_name)), AvailableAddon)
         else:
             return self._get_resources(('addon-services'), AvailableAddon)
 
