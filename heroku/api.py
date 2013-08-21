@@ -132,7 +132,7 @@ class HerokuCore(object):
         r = self._http_resource('GET', resource, params=params)
         d_items = self._resource_deserialize(r.content.decode("utf-8"))
 
-        items =  [obj.new_from_dict(item, h=self, **kwargs) for item in d_items]
+        items = [obj.new_from_dict(item, h=self, **kwargs) for item in d_items]
 
         if map is None:
             map = KeyedListResource
@@ -164,7 +164,7 @@ class Heroku(HerokuCore):
 
     def addon_services(self, id_or_name=None):
         if id_or_name is not None:
-            return self._get_resource(('addon-services/{0}'.format(id_or_name)), AvailableAddon)
+            return self._get_resource(('addon-services/{0}'.format(quote(id_or_name))), AvailableAddon)
         else:
             return self._get_resources(('addon-services'), AvailableAddon)
 
@@ -192,7 +192,7 @@ class Heroku(HerokuCore):
         if region_name:
             region['name'] = region_name
         if region_id or region_name:
-            #payload['region'] = region
+            payload['region'] = region
             pass
 
         print payload
@@ -200,7 +200,7 @@ class Heroku(HerokuCore):
             r = self._http_resource(
                 method='POST',
                 resource=('apps',),
-                data=payload
+                data=self._resource_serialize(payload)
             )
             name = json.loads(r.content).get('name')
         except HTTPError as e:

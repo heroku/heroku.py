@@ -10,6 +10,7 @@ This module contains the models that comprise the Heroku API.
 from .helpers import to_python
 from .structures import *
 import json
+from pprint import pprint
 import requests
 import sys
 
@@ -110,6 +111,19 @@ class BaseResource(object):
 
         return d
 
+class User(BaseResource):
+    """Heroku User."""
+
+    _strs = ['id', 'email']
+    _pks = ['id', 'email']
+
+    def __init__(self):
+        self.app = None
+        super(User, self).__init__()
+
+    def __repr__(self):
+        return "<user '{0}'>".format(self.email)
+
 
 class Plan(BaseResource):
     """Heroku Addon."""
@@ -163,27 +177,44 @@ class Addon(AvailableAddon):
         return "<addon '{0}'>".format(self.plan.name)
 
     def delete(self):
+        """Uninstalls the addon"""
         r = self._h._http_resource(
             method='DELETE',
-            resource=('apps', self.app.name, 'addons', self.id)
+            resource=('apps', self.app.id, 'addons', self.id)
         )
         r.raise_for_status()
         return r.ok
 
-    def upgrade(self, name, params=None):
+    def upgrade(self, name=None, config=None):
+
         """Upgrades an addon to the given tier."""
         # Allow non-namespaced upgrades. (e.g. advanced vs logging:advanced)
         if ':' not in name:
             name = '{0}:{1}'.format(self.type, name)
 
+        payload = {}
+        plan = {}
+        if not config:
+            config = {}
+        print "name = {0}".format(name)
+        print "id = {0}".format(self.id)
+        print "planid = {0}".format(self.plan.id)
+        assert(name)
+        plan['id'] = self.plan.id
+        plan['name'] = name
+        payload['config'] = config
+        payload['plan'] = plan
+
         r = self._h._http_resource(
             method='PATCH',
-            resource=('apps', self.app.name, 'addons', quote(name)),
-            params=params,
-            data=' '   # Server weirdness.
+            resource=('apps', self.app.id, 'addons', self.id),
+            data=self._h._resource_serialize(payload)
         )
+
+        print r.content.decode("utf-8")
         r.raise_for_status()
-        return self.app.addons[name]
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return Addon.new_from_dict(item, h=self._h)
 
 
 class App(BaseResource):
@@ -207,6 +238,52 @@ class App(BaseResource):
             resource=('apps', self.name, 'addons'),
             obj=Addon, app=self
         )
+
+    def delete(self):
+        r = self._h._http_resource(
+            method='DELETE',
+            resource=('apps', self.id)
+        )
+        r.raise_for_status()
+        return r.ok
+
+    def add_collaborator(self, email=None, id=None, silent=False):
+
+        assert(email or id)
+        payload = {}
+        user = {}
+        if email:
+            user['email'] = email
+        if id:
+            user['id'] = id
+
+        if silent:
+            silent = True
+
+        #payload['silent'] = silent
+        payload['user'] = user
+
+        pprint(payload)
+
+        r = self._h._http_resource(
+            method='POST',
+            resource=('apps', self.name, 'collaborators'),
+            data=self._h._resource_serialize(payload)
+        )
+
+        print r.content.decode("utf-8")
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return Collaborator.new_from_dict(item, h=self._h, app=self)
+
+    def remove_collaborator(self, id_or_email):
+        r = self._h._http_resource(
+            method='DELETE',
+            resource=('apps', self.name, 'collaborators', id_or_email)
+        )
+        r.raise_for_status()
+
+        return r.ok
 
     def install_addon(self, plan_id=None, plan_name=None, config=None):
 
@@ -232,12 +309,10 @@ class App(BaseResource):
             data=self._h._resource_serialize(payload)
         )
 
-        print r.content.decode("utf-8")
         r.raise_for_status()
         item = self._h._resource_deserialize(r.content.decode("utf-8"))
-        return Addon.new_from_dict(item, h=self._h)
+        return Addon.new_from_dict(item, h=self._h, app=self)
 
-    @property
     def collaborators(self):
         """The collaborators for this app."""
         return self._h._get_resources(
@@ -245,13 +320,42 @@ class App(BaseResource):
             obj=Collaborator, app=self
         )
 
-    @property
+    def config(self):
+        """The envs for this app."""
+
+        return self._h._get_resource(
+            resource=('apps', self.name, 'config-vars'),
+            obj=ConfigVars, app=self
+        )
+
     def domains(self):
         """The domains for this app."""
         return self._h._get_resources(
             resource=('apps', self.name, 'domains'),
             obj=Domain, app=self
         )
+
+    def add_domain(self, hostname):
+
+        r = self._h._http_resource(
+            method='POST',
+            resource=('apps', self.name, 'domains'),
+            data=self._h._resource_serialize({'hostname': hostname})
+        )
+
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return Domain.new_from_dict(item, h=self._h, app=self)
+
+    def remove_domain(self, hostname):
+        r = self._h._http_resource(
+            method='DELETE',
+            resource=('apps', self.name, 'domains', hostname)
+        )
+
+        r.raise_for_status()
+
+        return r.ok
 
     @property
     def releases(self):
@@ -267,15 +371,6 @@ class App(BaseResource):
         return self._h._get_resources(
             resource=('apps', self.name, 'ps'),
             obj=Process, app=self, map=ProcessListResource
-        )
-
-    @property
-    def config(self):
-        """The envs for this app."""
-
-        return self._h._get_resource(
-            resource=('apps', self.name, 'config_vars'),
-            obj=ConfigVars, app=self
         )
 
     @property
@@ -302,7 +397,6 @@ class App(BaseResource):
             data={'rollback': release}
         )
         return self.releases[-1]
-
 
     def rename(self, name):
         """Renames app to given name."""
@@ -378,34 +472,28 @@ class App(BaseResource):
             return r.iter_lines()
 
 
-
 class Collaborator(BaseResource):
     """Heroku Collaborator."""
 
-    _strs = ['access', 'email']
-    _pks = ['email']
+    _bools = ['silent']
+    _dates = ['created_at', 'updated_at']
+    _strs = ['id']
+    _pks = ['id']
+    _map = {'user': User}
 
     def __init__(self):
         self.app = None
         super(Collaborator, self).__init__()
 
     def __repr__(self):
-        return "<collaborator '{0}'>".format(self.email)
+        return "<collaborator '{0}'>".format(self.user.email)
 
-    def new(self, email):
-        r = self._h._http_resource(
-            method='POST',
-            resource=('apps', self.app.name, 'collaborators'),
-            data={'collaborator[email]': email}
-        )
-
-        return self.app.collaborators[email]
-
-    def delete(self):
+    def remove(self):
         r = self._h._http_resource(
             method='DELETE',
-            resource=('apps', self.app.name, 'collaborators', self.email)
+            resource=('apps', self.app.name, 'collaborators', self.user.email)
         )
+        r.raise_for_status()
 
         return r.ok
 
@@ -429,17 +517,20 @@ class ConfigVars(object):
         payload = json.dumps({key: value})
 
         r = self._h._http_resource(
-            method='PUT',
-            resource=('apps', self.app.name, 'config_vars'),
+            method='PATCH',
+            resource=('apps', self.app.name, 'config-vars'),
             data=payload
         )
 
         return r.ok
 
     def __delitem__(self, key):
+        data = self._h._resource_serialize({key: None})
+        print data
         r = self._h._http_resource(
-            method='DELETE',
-            resource=('apps', self.app.name, 'config_vars', key),
+            method='PATCH',
+            resource=('apps', self.app.name, 'config-vars'),
+            data=data
         )
 
         return r.ok
@@ -458,35 +549,26 @@ class ConfigVars(object):
 class Domain(BaseResource):
     """Heroku Domain."""
 
-    _ints = ['id', 'app_id', ]
-    _strs = ['domain', 'base_domain', 'default']
+    _strs = ['id', 'hostname']
     _dates = ['created_at', 'updated_at']
-    _pks = ['domain', 'id']
-
+    _pks = ['hostname', 'id']
 
     def __init__(self):
         self.app = None
         super(Domain, self).__init__()
 
     def __repr__(self):
-        return "<domain '{0}'>".format(self.domain)
+        return "<domain '{0}'>".format(self.hostname)
 
-    def delete(self):
+    def remove(self):
         r = self._h._http_resource(
             method='DELETE',
-            resource=('apps', self.app.name, 'domains', self.domain)
+            resource=('apps', self.app.name, 'domains', self.hostname)
         )
+
+        r.raise_for_status()
 
         return r.ok
-
-    def new(self, name):
-        r = self._h._http_resource(
-            method='POST',
-            resource=('apps', self.app.name, 'domains'),
-            data={'domain_name[domain]': name}
-        )
-
-        return self.app.domains[name]
 
 
 class Key(BaseResource):
@@ -543,7 +625,6 @@ class Process(BaseResource):
     _bools = ['attached']
     _dates = []
     _pks = ['process', 'upid']
-
 
     def __init__(self):
         self.app = None
@@ -622,11 +703,12 @@ class Process(BaseResource):
             return ProcessListResource()
 
 
-
 class Release(BaseResource):
-    _strs = ['name', 'descr', 'user', 'commit', 'addons']
-    _dicts = ['env', 'pstable']
-    _dates = ['created_at']
+    _strs = ['description', 'id', 'user', 'commit', 'addons']
+    #_dicts = ['env', 'pstable']
+    _ints = ['version']
+    _dates = ['created_at', 'updated_at']
+    _map = {'user': User}
     _pks = ['name']
 
     def __init__(self):
@@ -642,14 +724,13 @@ class Release(BaseResource):
         return self.app.rollback(self.name)
 
 
-
 class Stack(BaseResource):
     def __init__(self):
         super(Stack, self).__init__()
 
 
 class Feature(BaseResource):
-    _strs = ['name', 'kind', 'summary', 'docs',]
+    _strs = ['name', 'kind', 'summary', 'docs']
     _bools = ['enabled']
     _pks = ['name']
 
@@ -688,3 +769,19 @@ class RateLimit(BaseResource):
 
     def __repr__(self):
         return "<RateLimit '{0}'>".format(self.remaining)
+
+
+class Dyno(BaseResource):
+    _strs = ['id', 'attach_url', 'command', 'name', 'state', 'type']
+    _bools = ['attach']
+    _ints = ['size', 'repo_size']
+    _dates = ['created_at', 'updated_at']
+    _map = {'release': Release}
+    _pks = ['id']
+
+    def __init__(self):
+        self.app = None
+        super(Dyno, self).__init__()
+
+    def __repr__(self):
+        return "<Dyno '{0} - {1}'>".format(self.name, self.command)
