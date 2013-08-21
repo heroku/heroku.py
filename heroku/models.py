@@ -357,6 +357,21 @@ class App(BaseResource):
 
         return r.ok
 
+    def run_command(self, command, attach=False, size=1):
+        if attach:
+            attach = True
+        payload = {'command': command, 'attach': attach, 'size': size}
+
+        r = self._h._http_resource(
+            method='POST',
+            resource=('apps', self.name, 'dynos'),
+            data=self._h._resource_serialize(payload)
+        )
+
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return Dyno.new_from_dict(item, h=self._h, app=self)
+
     @property
     def releases(self):
         """The releases for this app."""
