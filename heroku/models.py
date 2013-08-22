@@ -150,6 +150,27 @@ class Account(BaseResource):
     def __repr__(self):
         return "<account '{0}'>".format(self.email)
 
+    def add_key(self, key):
+        r = self._h._http_resource(
+            method='POST',
+            resource=('account', 'keys'),
+            data=self._h._resource_serialize({'public_key': key})
+        )
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return Key.new_from_dict(item, h=self._h)
+
+    def remove_key(self, key_or_fingerprint):
+        """Deletes the key."""
+        r = self._h._http_resource(
+            method='DELETE',
+            resource=('account', 'keys', quote(key_or_fingerprint))
+        )
+
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return Key.new_from_dict(item, h=self._h)
+
 
 class AvailableAddon(BaseResource):
     """Heroku Addon."""
@@ -623,39 +644,25 @@ class Domain(BaseResource):
 class Key(BaseResource):
     """Heroku SSH Key."""
 
-    _strs = ['email', 'contents']
+    _strs = ['id', 'publis_key', 'email', 'fingerprint']
+    _dates = ['created_at', 'updated_at']
     _pks = ['id']
 
     def __init__(self):
         super(Key, self).__init__()
 
     def __repr__(self):
-        return "<key '{0}'>".format(self.id)
-
-    @property
-    def id(self):
-        """Returns the username@hostname description field of the key."""
-
-        return self.contents.split()[-1]
-
-    def new(self, key):
-        r = self._h._http_resource(
-            method='POST',
-            resource=('user', 'keys'),
-            data=key
-        )
-        r.raise_for_status()
-
-        return self._h.keys.get(key.split()[-1])
+        return "<key '{0}-{1}'>".format(self.id, self.email)
 
     def delete(self):
         """Deletes the key."""
         r = self._h._http_resource(
             method='DELETE',
-            resource=('user', 'keys', self.id)
+            resource=('account', 'keys', self.id)
         )
 
         r.raise_for_status()
+        return self
 
 
 class Log(BaseResource):
@@ -741,19 +748,18 @@ class Release(BaseResource):
     _ints = ['version']
     _dates = ['created_at', 'updated_at']
     _map = {'user': User}
-    _pks = ['name']
+    _pks = ['id', 'version']
 
     def __init__(self):
         self.app = None
         super(Release, self).__init__()
 
     def __repr__(self):
-        return "<release '{0}'>".format(self.name)
+        return "<release '{0} {1} {2}'>\n".format(self.version, self.created_at, self.description)
 
-    def rollback(self):
-        """Rolls back the application to this release."""
-
-        return self.app.rollback(self.name)
+    #def rollback(self):
+        #"""Rolls back the application to this release."""
+        #return self.app.rollback(self.name)
 
 
 class Stack(BaseResource):

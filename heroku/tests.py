@@ -3,10 +3,11 @@ import heroku
 from pprint import pprint# noqa
 
 HEROKU_API_KEY = os.environ.get('HEROKU_API_KEY', False)
+TEST_EMAIL = os.environ.get('TEST_EMAIL', False)
 
 heroku_conn = heroku.from_key(HEROKU_API_KEY)
 #newapp = heroku_conn.create_app(name='testing125146513', stack='cedar', region_name='us')
-#collab = newapp.add_collaborator(email='testing125146513@gmail.com', silent=1)
+#collab = newapp.add_collaborator(email=TEST_EMAIL, silent=1)
 #print newapp.collaborators()
 #config = newapp.config()
 #config['TEST2'] = None
@@ -24,15 +25,16 @@ app = heroku_conn.app('testing125146513')
 #dyno = app.run_command_detached('fab -l', printout=True)
 #pprint(dyno)
 #dyno.remove()
-formations = app.process_formation()
-for formation in formations:
-    #formation.scale(2)
-    formation.restart()
+#formations = app.process_formation()
+#for formation in formations:
+    #formation.scale(1)
+    #formation.restart()
 
 #for dyno in app.dynos():
     #dyno.restart()
     #dyno.scale(1)
 
+pprint(app.releases)
 #app.restart()
 #del config['TEST2']
 
