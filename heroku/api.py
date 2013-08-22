@@ -9,7 +9,7 @@ This module provides the basic API interface for Heroku.
 
 from .compat import json
 from .helpers import is_collection
-from .models import *
+from .models import * # noqa
 from .structures import KeyedListResource
 from heroku.models import Feature
 from requests.exceptions import HTTPError
@@ -38,7 +38,6 @@ class HerokuCore(object):
 
     def __repr__(self):
         return '<heroku-core at 0x%x>' % (id(self))
-
 
     def authenticate(self, api_key):
         """Logs user into Heroku with given api_key."""
@@ -91,7 +90,7 @@ class HerokuCore(object):
         except ValueError:
             raise ResponseError('The API Response was not valid.')
 
-    def _http_resource(self, method, resource, params=None, data=None):
+    def _http_resource(self, method, resource, params=None, data=None, legacy=False):
         """Makes an HTTP request."""
 
         if not is_collection(resource):
@@ -99,13 +98,22 @@ class HerokuCore(object):
 
         url = self._url_for(*resource)
         print url
-        r = self._session.request(method, url, params=params, data=data)
         from pprint import pprint
-        #pprint(self._session.headers)
         #pprint(method)
         #pprint(params)
-        #pprint(data)
+        pprint(data)
         #pprint(r.headers)
+        if legacy is True:
+            #Nasty patch session to fallback to old api
+            self._session.headers.update({'Accept': 'application/json'})
+            del self._session.headers['Content-Type']
+            pass
+        pprint(self._session.headers)
+        r = self._session.request(method, url, params=params, data=data)
+        if legacy is True:
+            #Nasty patch session to return to the new api
+            self._session.headers.update({'Accept': 'application/vnd.heroku+json; version=3', 'Content-Type': 'application/json'})
+            pass
         self._ratelimit_remaining = r.headers['ratelimit-remaining']
 
         if r.status_code == 422:
@@ -123,14 +131,19 @@ class HerokuCore(object):
     def _get_resource(self, resource, obj, params=None, **kwargs):
         """Returns a mapped object from an HTTP resource."""
         r = self._http_resource('GET', resource, params=params)
-        item = self._resource_deserialize(r.content.decode("utf-8"))
+
+        return self._process_item(self._resource_deserialize(r.content.decode("utf-8")), obj, **kwargs)
+
+    def _process_item(self, item, obj, **kwargs):
 
         return obj.new_from_dict(item, h=self, **kwargs)
 
     def _get_resources(self, resource, obj, params=None, map=None, **kwargs):
         """Returns a list of mapped objects from an HTTP resource."""
         r = self._http_resource('GET', resource, params=params)
-        d_items = self._resource_deserialize(r.content.decode("utf-8"))
+        return self._process_items(self._resource_deserialize(r.content.decode("utf-8")), obj, map=map, **kwargs)
+
+    def _process_items(self, d_items, obj, map=None, **kwargs):
 
         items = [obj.new_from_dict(item, h=self, **kwargs) for item in d_items]
 

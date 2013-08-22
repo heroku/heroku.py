@@ -8,7 +8,8 @@ This module contains the models that comprise the Heroku API.
 """
 
 from .helpers import to_python
-from .structures import *
+from .structures import DynoListResource, filtered_key_list_resource_factory
+from .rendezvous import Rendezvous
 import json
 from pprint import pprint
 import requests
@@ -17,7 +18,7 @@ import sys
 if sys.version_info > (3, 0):
     from urllib.parse import quote
 else:
-    from urllib import quote
+    from urllib import quote # noqa
 
 
 class BaseResource(object):
@@ -67,7 +68,6 @@ class BaseResource(object):
             except ValueError:
                 pass
 
-
     def dict(self):
         d = dict()
         for k in self.keys():
@@ -110,6 +110,7 @@ class BaseResource(object):
         d.__dict__.update(kwargs)
 
         return d
+
 
 class User(BaseResource):
     """Heroku User."""
@@ -214,7 +215,7 @@ class Addon(AvailableAddon):
         print r.content.decode("utf-8")
         r.raise_for_status()
         item = self._h._resource_deserialize(r.content.decode("utf-8"))
-        return Addon.new_from_dict(item, h=self._h)
+        return Addon.new_from_dict(item, h=self._h, app=self.app)
 
 
 class App(BaseResource):
@@ -357,7 +358,34 @@ class App(BaseResource):
 
         return r.ok
 
-    def run_command(self, command, attach=False, size=1):
+    def dynos(self):
+        """The proccesses for this app."""
+        return self._h._get_resources(
+            resource=('apps', self.name, 'dynos'),
+            obj=Dyno, app=self, map=DynoListResource
+        )
+
+    def remove_dyno(self, dyno_id_or_name):
+        r = self._h._http_resource(
+            method='DELETE',
+            resource=('apps', self.id, 'dynos', quote(dyno_id_or_name))
+        )
+
+        r.raise_for_status()
+
+        return r.ok
+
+    def restart(self):
+        for formation in self.process_formation():
+            formation.restart()
+        return self
+
+    def run_command_detached(self, command, printout=True, size=1):
+        """Run a remote command but do not wait for the command to complete"""
+        return self.run_command(command, attach=False, printout=printout, size=size)
+
+    def run_command(self, command, attach=True, printout=True, size=1):
+        """Run a remote command attach=True if you want to capture the output"""
         if attach:
             attach = True
         payload = {'command': command, 'attach': attach, 'size': size}
@@ -370,7 +398,20 @@ class App(BaseResource):
 
         r.raise_for_status()
         item = self._h._resource_deserialize(r.content.decode("utf-8"))
-        return Dyno.new_from_dict(item, h=self._h, app=self)
+        dyno = Dyno.new_from_dict(item, h=self._h, app=self)
+
+        if attach:
+            output = Rendezvous(dyno.attach_url, printout).start()
+            return output, dyno
+        else:
+            return dyno
+
+    def process_formation(self):
+        """The formation processes for this app."""
+        return self._h._get_resources(
+            resource=('apps', self.name, 'formation'),
+            obj=Formation, app=self#, map=DynoListResource
+        )
 
     @property
     def releases(self):
@@ -378,14 +419,6 @@ class App(BaseResource):
         return self._h._get_resources(
             resource=('apps', self.name, 'releases'),
             obj=Release, app=self
-        )
-
-    @property
-    def processes(self):
-        """The proccesses for this app."""
-        return self._h._get_resources(
-            resource=('apps', self.name, 'ps'),
-            obj=Process, app=self, map=ProcessListResource
         )
 
     @property
@@ -411,6 +444,7 @@ class App(BaseResource):
             resource=('apps', self.name, 'releases'),
             data={'rollback': release}
         )
+        r.raise_for_status()
         return self.releases[-1]
 
     def rename(self, name):
@@ -590,7 +624,7 @@ class Key(BaseResource):
     """Heroku SSH Key."""
 
     _strs = ['email', 'contents']
-    _pks = ['id',]
+    _pks = ['id']
 
     def __init__(self):
         super(Key, self).__init__()
@@ -610,6 +644,7 @@ class Key(BaseResource):
             resource=('user', 'keys'),
             data=key
         )
+        r.raise_for_status()
 
         return self._h.keys.get(key.split()[-1])
 
@@ -629,93 +664,75 @@ class Log(BaseResource):
         super(Log, self).__init__()
 
 
-class Process(BaseResource):
+class Formation(BaseResource):
 
-    _strs = [
-        'app_name', 'slug', 'command', 'upid', 'process', 'action',
-        'rendezvous_url', 'pretty_state', 'state'
-    ]
-
-    _ints = ['elapsed']
+    _strs = ['id', 'command', 'type']
+    _ints = ['quantity', 'size']
     _bools = ['attached']
-    _dates = []
+    _dates = ['created_at', 'updated_at']
     _pks = ['process', 'upid']
 
     def __init__(self):
         self.app = None
-        super(Process, self).__init__()
+        super(Formation, self).__init__()
 
     def __repr__(self):
-        return "<process '{0}'>".format(self.process)
+        return "<formation '{0}-{1}'>".format(self.type, self.command)
 
-    def new(self, command, attach=""):
-        """
-        Creates a new Process
-        Attach: If attach=True it will return a rendezvous connection point, for streaming stdout/stderr
-        Command: The actual command it will run
-        """
-        r = self._h._http_resource(
-            method='POST',
-            resource=('apps', self.app.name, 'ps',),
-            data={'attach': attach, 'command': command}
-        )
-
-        r.raise_for_status()
-        return self.app.processes[r.json['process']]
-
-    @property
-    def type(self):
-        return self.process.split('.')[0]
-
-    def restart(self, all=False):
+    def restart(self):
         """Restarts the given process."""
 
-        if all:
-            data = {'type': self.type}
-
-        else:
-            data = {'ps': self.process}
+        data = {'type': self.type}
 
         r = self._h._http_resource(
             method='POST',
             resource=('apps', self.app.name, 'ps', 'restart'),
-            data=data
-        )
-
-        r.raise_for_status()
-
-    def stop(self, all=False):
-        """Stops the given process."""
-
-        if all:
-            data = {'type': self.type}
-
-        else:
-            data = {'ps': self.process}
-
-        r = self._h._http_resource(
-            method='POST',
-            resource=('apps', self.app.name, 'ps', 'stop'),
-            data=data
+            data=data,
+            legacy=True
         )
 
         r.raise_for_status()
 
     def scale(self, quantity):
         """Scales the given process to the given number of dynos."""
+        if quantity > 0:
+            return self.update(quantity=quantity)
 
         r = self._h._http_resource(
             method='POST',
             resource=('apps', self.app.name, 'ps', 'scale'),
-            data={'type': self.type, 'qty': quantity}
+            data={'type': self.type, 'qty': quantity},
+            legacy=True
         )
 
         r.raise_for_status()
 
-        if self.type in self.app.processes:
-            return self.app.processes[self.type]
-        else:
-            return ProcessListResource()
+        return self
+
+    def size(self, size):
+        return self.update(size=size)
+
+    def update(self, size=None, quantity=None):
+        print "size = {0}".format(size)
+        print "quantity = {0}".format(quantity)
+
+        assert(size or quantity == 0 or quantity)
+        payload = {}
+        if size:
+            payload['size'] = size
+
+        if quantity:
+            payload['quantity'] = quantity
+
+        r = self._h._http_resource(
+            method='PATCH',
+            resource=('apps', self.app.id, 'formation', quote(self.type)),
+            data=self._h._resource_serialize(payload)
+        )
+
+        print r.content.decode("utf-8")
+        r.raise_for_status()
+        return self._h._process_items(self._h._resource_deserialize(r.content.decode("utf-8")), Formation)
 
 
 class Release(BaseResource):
@@ -800,3 +817,13 @@ class Dyno(BaseResource):
 
     def __repr__(self):
         return "<Dyno '{0} - {1}'>".format(self.name, self.command)
+
+    def kill(self):
+        r = self._h._http_resource(
+            method='DELETE',
+            resource=('apps', self.app.id, 'dynos', self.id)
+        )
+
+        r.raise_for_status()
+
+        return r.ok

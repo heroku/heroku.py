@@ -51,7 +51,6 @@ class KeyedListResource(object):
 
             return o.new(*args, **kwargs)
 
-
     def remove(self, key):
         if hasattr(self[0], 'delete'):
             return self[key].delete()
@@ -65,37 +64,35 @@ class KeyedListResource(object):
         self[key].delete()
 
 
-
-class ProcessListResource(KeyedListResource):
+class DynoListResource(KeyedListResource):
     """KeyedListResource with basic filtering for process types."""
 
     def __init__(self, *args, **kwargs):
-        super(ProcessListResource, self).__init__(*args, **kwargs)
+        super(DynoListResource, self).__init__(*args, **kwargs)
 
     def __getitem__(self, key):
 
         try:
-            return super(ProcessListResource, self).__getitem__(key)
+            return super(DynoListResource, self).__getitem__(key)
         except KeyError as why:
 
             c = [p for p in self._items if key == p.type]
 
             if c:
-                return ProcessTypeListResource(items=c)
+                return DynoTypeListResource(items=c)
             else:
                 raise why
 
 
-class ProcessTypeListResource(ProcessListResource):
+class DynoTypeListResource(DynoListResource):
     """KeyedListResource with basic filtering for process types."""
 
     def __init__(self, *args, **kwargs):
 
-        super(ProcessTypeListResource, self).__init__(*args, **kwargs)
+        super(DynoTypeListResource, self).__init__(*args, **kwargs)
 
     def scale(self, quantity):
         return self[0].scale(quantity)
-
 
 
 class SSHKeyListResource(KeyedListResource):
@@ -118,10 +115,11 @@ class SSHKeyListResource(KeyedListResource):
 
 class FilteredListResource(KeyedListResource):
     filter_func = staticmethod(lambda item: True)
-    
+
     def __init__(self, items=None):
         items = [item for item in items if self.filter_func(item)] if items else []
         super(FilteredListResource, self).__init__(items)
+
 
 def filtered_key_list_resource_factory(filter_func):
     return type('FilteredListResource', (FilteredListResource,), {'filter_func': staticmethod(filter_func)})
