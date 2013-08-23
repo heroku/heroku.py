@@ -6,7 +6,7 @@ HEROKU_API_KEY = os.environ.get('HEROKU_API_KEY', False)
 TEST_EMAIL = os.environ.get('TEST_EMAIL', False)
 
 heroku_conn = heroku.from_key(HEROKU_API_KEY)
-#newapp = heroku_conn.create_app(name='testing125146513', stack='bamboo', region_name='us')
+#newapp = heroku_conn.create_app(name='martyzz1test1', stack='cedar', region_name='us')
 #collab = newapp.add_collaborator(email=TEST_EMAIL, silent=1)
 #print newapp.collaborators()
 #config = newapp.config()
@@ -19,7 +19,12 @@ heroku_conn = heroku.from_key(HEROKU_API_KEY)
 #domain.remove()
 #print newapp.domains()
 
-app = heroku_conn.app('sharehoodfrontend')
+app = heroku_conn.app('martyzz1test2')
+
+#app.rename('martyzz1test1')
+
+#print app.enable_maintence_mode()
+#print app.disable_maintence_mode()
 #app.enable_feature('user-env-compile')
 #app.disable_feature('user-env-compile')
 #print app.labs()
@@ -39,8 +44,8 @@ app = heroku_conn.app('sharehoodfrontend')
     #if line:
         #print "{0}".format(line)
 
-logs = app.get_log(lines=100)
-print logs
+#logs = app.get_log(lines=100)
+#print logs
 
 #print app.domains(limit=1)
 #print app.domains(valrange='domain ]martinsharehoodadmin.herokuapp.com..; max=1')

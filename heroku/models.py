@@ -511,7 +511,8 @@ class App(BaseResource):
         r = self._h._http_resource(
             method='POST',
             resource=('apps', self.name, 'releases'),
-            data={'rollback': release}
+            data={'rollback': release},
+            legacy=True
         )
         r.raise_for_status()
         return self.releases[-1]
@@ -519,41 +520,87 @@ class App(BaseResource):
     def rename(self, name):
         """Renames app to given name."""
 
-        r = self._h._http_resource(
-            method='PUT',
-            resource=('apps', self.name),
-            data={'app[name]': name}
-        )
-        return r.ok
+        return self.update(name=name)
 
-    def transfer(self, user):
+    def transfers(self, **kwargs):
+        return self._h._get_resources(
+            resource=('account', 'app-transfers'),
+            obj=AppTransfer, app=self, **kwargs
+        )
+
+    def create_transfer(self, id=None, email=None):
         """Transfers app to given username's account."""
+        assert(id or email)
+
+        payload = {}
+        recipient = {}
+        app = {}
+        if email:
+            recipient['email'] = email
+
+        if id:
+            recipient['id'] = id
+
+        app['id'] = self.id
+        app['name'] = self.name
+
+        payload['app'] = app
+        payload['recipient'] = recipient
 
         r = self._h._http_resource(
             method='PUT',
-            resource=('apps', self.name),
-            data={'app[transfer_owner]': user}
+            resource=('account', 'app-transfers'),
+            data=self._h._resource_serialize(payload)
         )
-        return r.ok
 
-    def maintenance(self, on=True):
-        """Toggles maintenance mode."""
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return AppTransfer.new_from_dict(item, h=self._h, app=self)
 
+    def delete_transfer(self, id):
         r = self._h._http_resource(
-            method='POST',
-            resource=('apps', self.name, 'server', 'maintenance'),
-            data={'maintenance_mode': int(on)}
+            method='DELETE',
+            resource=('account', 'app-transfers', id),
         )
-        return r.ok
+
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return AppTransfer.new_from_dict(item, h=self._h, app=self)
+
+    def enable_maintence_mode(self):
+        """Enables maintenance mode."""
+        return self.update(maintenance=True)
+
+    def disable_maintence_mode(self):
+        """Disables maintenance mode."""
+        return self.update(maintenance=0)
+
+    def update(self, maintenance=False, name=None):
+
+        assert(maintenance or name or maintenance == 0)
+
+        payload = {}
+        if name:
+            payload['name'] = name
+        else:
+            if maintenance or maintenance == 0:
+                payload['maintenance'] = maintenance
+
+        print payload
+        r = self._h._http_resource(
+            method='PATCH',
+            resource=('apps', self.id),
+            data=self._h._resource_serialize(payload)
+        )
+
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        print item
+        return App.new_from_dict(item, h=self._h, app=self)
 
     def destroy(self):
         """Destoys the app. Do be careful."""
-
-        r = self._h._http_resource(
-            method='DELETE',
-            resource=('apps', self.name)
-        )
-        return r.ok
+        return self.delete()
 
     def stream_log(self, dyno=None, lines=100, source=None):
         logger = self._logger(dyno=dyno, lines=lines, source=source, tail=True)
@@ -964,3 +1011,31 @@ class LogSession(BaseResource):
     def get(self):
         r = requests.get(self.logplex_url, verify=False, stream=True)
         return r.content.decode("utf-8")
+
+
+class AppTransfer(BaseResource):
+    _strs = ['id', 'state']
+    _map = {'app': App, 'recipient': User, 'owner': User}
+    _dates = ['created_at', 'updated_at']
+    _pks = ['id']
+
+    def __init__(self):
+        self.app = None
+        super(AppTransfer, self).__init__()
+
+    def __repr__(self):
+        return "<apptransfer '{0}'>".format(self.id)
+
+    def update(self, state):
+
+        payload = {}
+        payload['state'] = state
+
+        r = self._h._http_resource(
+            method='PATCH',
+            resource=('account', 'app-transfers', self.id),
+            data=self._h._resource_serialize(payload)
+        )
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return AppTransfer.new_from_dict(item, h=self._h, app=self)
