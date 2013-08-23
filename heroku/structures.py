@@ -63,6 +63,9 @@ class KeyedListResource(object):
     def __delitem__(self, key):
         self[key].delete()
 
+    def append(self, items):
+        self._items.append(items)
+
 
 class DynoListResource(KeyedListResource):
     """KeyedListResource with basic filtering for process types."""

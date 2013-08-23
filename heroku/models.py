@@ -8,7 +8,7 @@ This module contains the models that comprise the Heroku API.
 """
 
 from .helpers import to_python
-from .structures import DynoListResource, filtered_key_list_resource_factory
+from .structures import DynoListResource#, filtered_key_list_resource_factory
 from .rendezvous import Rendezvous
 import json
 from pprint import pprint
@@ -30,6 +30,7 @@ class BaseResource(object):
     _dicts = []
     _map = {}
     _pks = []
+    order_by = 'id'
 
     def __init__(self):
         self._bootstrap()
@@ -94,23 +95,6 @@ class BaseResource(object):
 
         return d
 
-    @classmethod
-    def new_for_create(cls, h=None, **kwargs):
-        d = to_python(
-            obj=cls(),
-            in_dict={},
-            str_keys=cls._strs,
-            int_keys=cls._ints,
-            date_keys=cls._dates,
-            bool_keys=cls._bools,
-            dict_keys=cls._dicts,
-            object_map=cls._map,
-            _h=h
-        )
-        d.__dict__.update(kwargs)
-
-        return d
-
 
 class User(BaseResource):
     """Heroku User."""
@@ -170,6 +154,26 @@ class Account(BaseResource):
         r.raise_for_status()
         item = self._h._resource_deserialize(r.content.decode("utf-8"))
         return Key.new_from_dict(item, h=self._h)
+
+    def disable_feature(self, id_or_name):
+        return self.update_feature(id_or_name, 0)
+
+    def enable_feature(self, id_or_name):
+        return self.update_feature(id_or_name, True)
+
+    def update_feature(self, id_or_name, enabled):
+
+        payload = {'enabled': enabled}
+        print payload
+        r = self._h._http_resource(
+            method='PATCH',
+            resource=('account', 'features', id_or_name),
+            data=self._h._resource_serialize(payload)
+        )
+
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return AccountFeature.new_from_dict(item, h=self._h, app=self)
 
 
 class AvailableAddon(BaseResource):
@@ -254,11 +258,10 @@ class App(BaseResource):
     def __repr__(self):
         return "<app '{0}'>".format(self.name)
 
-    @property
-    def addons(self):
+    def addons(self, **kwargs):
         return self._h._get_resources(
             resource=('apps', self.name, 'addons'),
-            obj=Addon, app=self
+            obj=Addon, app=self, **kwargs
         )
 
     def delete(self):
@@ -269,7 +272,7 @@ class App(BaseResource):
         r.raise_for_status()
         return r.ok
 
-    def add_collaborator(self, email=None, id=None, silent=False):
+    def add_collaborator(self, email=None, id=None, silent=0):
 
         assert(email or id)
         payload = {}
@@ -282,7 +285,7 @@ class App(BaseResource):
         if silent:
             silent = True
 
-        #payload['silent'] = silent
+        payload['silent'] = silent
         payload['user'] = user
 
         pprint(payload)
@@ -335,11 +338,11 @@ class App(BaseResource):
         item = self._h._resource_deserialize(r.content.decode("utf-8"))
         return Addon.new_from_dict(item, h=self._h, app=self)
 
-    def collaborators(self):
+    def collaborators(self, **kwargs):
         """The collaborators for this app."""
         return self._h._get_resources(
             resource=('apps', self.name, 'collaborators'),
-            obj=Collaborator, app=self
+            obj=Collaborator, app=self, **kwargs
         )
 
     def config(self):
@@ -350,11 +353,11 @@ class App(BaseResource):
             obj=ConfigVars, app=self
         )
 
-    def domains(self):
+    def domains(self, **kwargs):
         """The domains for this app."""
         return self._h._get_resources(
             resource=('apps', self.name, 'domains'),
-            obj=Domain, app=self
+            obj=Domain, app=self, **kwargs
         )
 
     def add_domain(self, hostname):
@@ -379,11 +382,11 @@ class App(BaseResource):
 
         return r.ok
 
-    def dynos(self):
+    def dynos(self, **kwargs):
         """The proccesses for this app."""
         return self._h._get_resources(
             resource=('apps', self.name, 'dynos'),
-            obj=Dyno, app=self, map=DynoListResource
+            obj=Dyno, app=self, map=DynoListResource, **kwargs
         )
 
     def remove_dyno(self, dyno_id_or_name):
@@ -427,19 +430,18 @@ class App(BaseResource):
         else:
             return dyno
 
-    def process_formation(self):
+    def process_formation(self, **kwargs):
         """The formation processes for this app."""
         return self._h._get_resources(
             resource=('apps', self.name, 'formation'),
-            obj=Formation, app=self#, map=DynoListResource
+            obj=Formation, app=self, **kwargs#, map=DynoListResource
         )
 
-    @property
-    def releases(self):
+    def releases(self, **kwargs):
         """The releases for this app."""
         return self._h._get_resources(
             resource=('apps', self.name, 'releases'),
-            obj=Release, app=self
+            obj=Release, app=self, **kwargs
         )
 
     @property
@@ -451,12 +453,34 @@ class App(BaseResource):
             obj=App,
         )
 
-    @property
-    def labs(self):
+    def labs(self, **kwargs):
+        return self.features(**kwargs)
+
+    def features(self, **kwargs):
         return self._h._get_resources(
-            resource=('features'),
-            obj=Feature, params={'app': self.name}, app=self, map=filtered_key_list_resource_factory(lambda item: item.kind == 'app')
+            resource=('apps', self.id, 'features'),
+            obj=AppFeature, app=self, **kwargs
         )
+
+    def disable_feature(self, id_or_name):
+        return self.update_feature(id_or_name, 0)
+
+    def enable_feature(self, id_or_name):
+        return self.update_feature(id_or_name, True)
+
+    def update_feature(self, id_or_name, enabled):
+
+        payload = {'enabled': enabled}
+        print payload
+        r = self._h._http_resource(
+            method='PATCH',
+            resource=('apps', self.id, 'features', id_or_name),
+            data=self._h._resource_serialize(payload)
+        )
+
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return AppFeature.new_from_dict(item, h=self._h, app=self)
 
     def rollback(self, release):
         """Rolls back the release to the given version."""
@@ -622,6 +646,7 @@ class Domain(BaseResource):
     _strs = ['id', 'hostname']
     _dates = ['created_at', 'updated_at']
     _pks = ['hostname', 'id']
+    order_by = 'domain'
 
     def __init__(self):
         self.app = None
@@ -704,6 +729,7 @@ class Formation(BaseResource):
         """Scales the given process to the given number of dynos."""
         if quantity > 0:
             return self.update(quantity=quantity)
+        return self.update(quantity=quantity)
 
         r = self._h._http_resource(
             method='POST',
@@ -749,6 +775,7 @@ class Release(BaseResource):
     _dates = ['created_at', 'updated_at']
     _map = {'user': User}
     _pks = ['id', 'version']
+    order_by = 'seq'
 
     def __init__(self):
         self.app = None
@@ -767,33 +794,62 @@ class Stack(BaseResource):
         super(Stack, self).__init__()
 
 
-class Feature(BaseResource):
-    _strs = ['name', 'kind', 'summary', 'docs']
+class AppFeature(BaseResource):
+    _strs = ['name', 'description', 'doc_url', 'id']
     _bools = ['enabled']
-    _pks = ['name']
+    _dates = ['created_at', 'updated_at']
+    _pks = ['id', 'name']
 
     def __init__(self):
         self.app = None
-        super(Feature, self).__init__()
+        super(AppFeature, self).__init__()
 
     def __repr__(self):
-        return "<feature '{0}'>".format(self.name)
+        return "<app_feature '{0}'>".format(self.name)
 
-    def enable(self):
+    def update(self, enabled):
         r = self._h._http_resource(
             method='POST',
-            resource=('features', self.name),
-            params={'app': self.app.name if self.app else ''}
+            resource=('apps', self.app.id, 'features', self.id),
+            data=self._h._resource_serialize({'enabled': enabled})
         )
+        r.raise_for_status()
         return r.ok
 
+    def enable(self):
+        return self.update(True)
+
     def disable(self):
+        return self.update(0)
+
+
+class AccountFeature(BaseResource):
+    _strs = ['name', 'description', 'doc_url', 'id']
+    _bools = ['enabled']
+    _dates = ['created_at', 'updated_at']
+    _pks = ['id', 'name']
+
+    def __init__(self):
+        self.app = None
+        super(AccountFeature, self).__init__()
+
+    def __repr__(self):
+        return "<account_feature '{0}'>".format(self.name)
+
+    def update(self, enabled):
         r = self._h._http_resource(
-            method='DELETE',
-            resource=('features', self.name),
-            params={'app': self.app.name if self.app else ''}
+            method='POST',
+            resource=('account', 'features', self.id),
+            data=self._h._resource_serialize({'enabled': enabled})
         )
+        r.raise_for_status()
         return r.ok
+
+    def enable(self):
+        return self.update(True)
+
+    def disable(self):
+        return self.update(0)
 
 
 class RateLimit(BaseResource):

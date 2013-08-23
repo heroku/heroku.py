@@ -6,35 +6,49 @@ HEROKU_API_KEY = os.environ.get('HEROKU_API_KEY', False)
 TEST_EMAIL = os.environ.get('TEST_EMAIL', False)
 
 heroku_conn = heroku.from_key(HEROKU_API_KEY)
-#newapp = heroku_conn.create_app(name='testing125146513', stack='cedar', region_name='us')
+#newapp = heroku_conn.create_app(name='testing125146513', stack='bamboo', region_name='us')
 #collab = newapp.add_collaborator(email=TEST_EMAIL, silent=1)
 #print newapp.collaborators()
 #config = newapp.config()
 #config['TEST2'] = None
 #print newapp.domains()
 
-#domain = newapp.add_domain('testyzz1.testing.com')
 #domain2 = newapp.add_domain('testyzz2.testing.com')
 #print newapp.domains()
 #newapp.remove_domain('testyzz2.testing.com')
 #domain.remove()
 #print newapp.domains()
 
-app = heroku_conn.app('testing125146513')
+app = heroku_conn.app('martinsharehoodadmin')
+#app.enable_feature('user-env-compile')
+#app.disable_feature('user-env-compile')
+#print app.labs()
+#print heroku_conn.features()
+#domain = app.add_domain('testyzz1.testing.com')
+#domain = app.add_domain('testyzz2.testing.com')
+#domain = app.add_domain('testyzz3.testing.com')
+#domain = app.add_domain('testyzz4.testing.com')
+#domain = app.add_domain('testyzz5.testing.com')
+#domain = app.add_domain('testyzz6.testing.com')
+#domain = app.add_domain('testyzz7.testing.com')
+
+print app.domains(limit=1)
+#print app.domains(valrange='domain ]martinsharehoodadmin.herokuapp.com..; max=1')
 #dyno = app.run_command_detached('fab celery.shutdown_process', printout=True)
 #dyno = app.run_command_detached('fab -l', printout=True)
 #pprint(dyno)
 #dyno.remove()
-#formations = app.process_formation()
+#formations = app.process_formation(limit=1)
 #for formation in formations:
-    #formation.scale(1)
+    #formation.scale(0)
+    #print app._h._last_request_id
     #formation.restart()
 
 #for dyno in app.dynos():
     #dyno.restart()
     #dyno.scale(1)
 
-pprint(app.releases)
+#pprint(app.releases(limit=10))
 #app.restart()
 #del config['TEST2']
 
@@ -67,4 +81,5 @@ pprint(app.releases)
 
 #app.delete()
 
+print heroku_conn._last_request_id
 assert(False)

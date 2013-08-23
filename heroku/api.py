@@ -11,11 +11,19 @@ from .compat import json
 from .helpers import is_collection
 from .models import * # noqa
 from .structures import KeyedListResource
-from heroku.models import Feature
+from heroku.models import AccountFeature
 from requests.exceptions import HTTPError
 import requests
 
 HEROKU_URL = 'https://api.heroku.com'
+
+
+class RateLimitExceeded(Exception):
+    pass
+
+
+class MaxRangeExceeded(Exception):
+    pass
 
 
 class HerokuCore(object):
@@ -31,6 +39,7 @@ class HerokuCore(object):
         self._heroku_url = HEROKU_URL
         self._session = session
         self._ratelimit_remaining = None
+        self._last_request_id = None
 
         # We only want JSON back.
         #self._session.headers.update({'Accept': 'application/json'})
@@ -90,7 +99,31 @@ class HerokuCore(object):
         except ValueError:
             raise ResponseError('The API Response was not valid.')
 
-    def _http_resource(self, method, resource, params=None, data=None, legacy=False):
+    def _get_headers_for_request(self, legacy=False, order_by=None, limit=None, valrange=None):
+        headers = {}
+        if legacy is True:
+            #Nasty patch session to fallback to old api
+            headers.update({'Accept': 'application/json'})
+            #del self._session.headers['Content-Type']
+
+        else:
+            if order_by or limit or valrange:
+                range_str = ""
+                if order_by:
+                    range_str = "{0} ..".format(order_by)
+                if limit:
+                    if limit > 1000:
+                        raise MaxRangeExceeded("Your *limit* ({0}) argument is greater than the maximum allowed value of 1000".format(limit))
+                    range_str += "; max={0}".format(limit)
+
+                if valrange:
+                    #If given, This should override limit and order_by
+                    range_str = valrange
+                headers.update({'Range': range_str})
+
+        return headers
+
+    def _http_resource(self, method, resource, params=None, data=None, legacy=False, order_by=None, limit=None, valrange=None):
         """Makes an HTTP request."""
 
         if not is_collection(resource):
@@ -98,32 +131,38 @@ class HerokuCore(object):
 
         url = self._url_for(*resource)
         print url
-        from pprint import pprint
+        from pprint import pprint # noqa
         #pprint(method)
         #pprint(params)
-        pprint(data)
-        #pprint(r.headers)
-        if legacy is True:
-            #Nasty patch session to fallback to old api
-            self._session.headers.update({'Accept': 'application/json'})
-            del self._session.headers['Content-Type']
-            pass
-        pprint(self._session.headers)
-        r = self._session.request(method, url, params=params, data=data)
-        if legacy is True:
-            #Nasty patch session to return to the new api
-            self._session.headers.update({'Accept': 'application/vnd.heroku+json; version=3', 'Content-Type': 'application/json'})
-            pass
-        self._ratelimit_remaining = r.headers['ratelimit-remaining']
+        #pprint(data)
 
+        headers = self._get_headers_for_request(legacy=legacy, order_by=order_by, limit=limit, valrange=valrange)
+
+        pprint(headers)
+        r = self._session.request(method, url, params=params, data=data, headers=headers)
+
+        if 'ratelimit-remaining' in r.headers:
+            self._ratelimit_remaining = r.headers['ratelimit-remaining']
+
+        if 'Request-Id' in r.headers:
+            self._last_request_id = r.headers['Request-Id']
+
+        #print "STATUS_CODE = {0}".format(r.status_code)
         if r.status_code == 422:
-            http_error = HTTPError('%s Client Error: %s' %
-                                   (r.status_code, r.content.decode("utf-8")))
+            http_error = HTTPError('%s - %s Client Error: %s' %
+                                   (self._last_request_id, r.status_code, r.content.decode("utf-8")))
             http_error.response = r
             raise http_error
 
-        if r.status_code != 200 or r.status_code != 304:
-            print r.content.decode("utf-8")
+        if r.status_code == 429:
+            #Rate limit reached
+            print r.headers
+            raise RateLimitExceeded("You have exceeded your rate limit \n{0}".format(r.content.decode("utf-8")))
+
+        if r.status_code != 200 or r.status_code != 304 or r.status_code != 206:
+            #print r.headers
+            #print r.content.decode("utf-8")
+            pass
         r.raise_for_status()
 
         return r
@@ -138,13 +177,35 @@ class HerokuCore(object):
 
         return obj.new_from_dict(item, h=self, **kwargs)
 
-    def _get_resources(self, resource, obj, params=None, map=None, **kwargs):
+    def _get_resources(self, resource, obj, params=None, map=None, legacy=None, order_by=None, limit=None, valrange=None, **kwargs):
         """Returns a list of mapped objects from an HTTP resource."""
-        r = self._http_resource('GET', resource, params=params)
-        return self._process_items(self._resource_deserialize(r.content.decode("utf-8")), obj, map=map, **kwargs)
+        if not order_by:
+            order_by = obj.order_by
+
+        return self._process_items(self._get_data(resource, params=params, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange), obj, map=map, **kwargs)
+
+    def _get_data(self, resource, params=None, legacy=None, order_by=None, limit=None, valrange=None):
+        print "In _get_data"
+
+        r = self._http_resource('GET', resource, params=params, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange)
+        print r.content.decode("utf-8")
+        print self._last_request_id
+
+        items = self._resource_deserialize(r.content.decode("utf-8"))
+        if r.status_code == 206 and 'Next-Range' in r.headers:# and not limit:
+            #We have unexpected chunked response - deal with it
+            valrange = r.headers['Next-Range']
+            print "Warning Response was chunked, Loading the next Chunk using the following next-range header returned by Heroku '{0}'. WARNING - This breaks randomly depending on your order_by name. I think it's only guarenteed to work with id's - Looks to be a Heroku problem".format(valrange)
+            new_items = self._get_data(resource, params=params, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange)
+            print "New Items\n"
+            pprint(new_items)
+            items.extend(new_items)
+
+        return items
 
     def _process_items(self, d_items, obj, map=None, **kwargs):
 
+        pprint(d_items)
         items = [obj.new_from_dict(item, h=self, **kwargs) for item in d_items]
 
         if map is None:
@@ -171,19 +232,17 @@ class Heroku(HerokuCore):
     def account(self):
         return self._get_resource(('account'), Account)
 
-    @property
-    def addons(self):
-        return self._get_resources(('addons'), Addon)
+    def addons(self, **kwargs):
+        return self._get_resources(('addons'), Addon, **kwargs)
 
-    def addon_services(self, id_or_name=None):
+    def addon_services(self, id_or_name=None, **kwargs):
         if id_or_name is not None:
             return self._get_resource(('addon-services/{0}'.format(quote(id_or_name))), AvailableAddon)
         else:
-            return self._get_resources(('addon-services'), AvailableAddon)
+            return self._get_resources(('addon-services'), AvailableAddon, **kwargs)
 
-    @property
-    def apps(self):
-        return self._get_resources(('apps'), App)
+    def apps(self, **kwargs):
+        return self._get_resources(('apps'), App, **kwargs)
 
     def app(self, id_or_name):
         return self._get_resource(('apps/{0:s}'.format(id_or_name)), App)
@@ -224,13 +283,14 @@ class Heroku(HerokuCore):
                 raise e
         return self.app(name)
 
-    @property
-    def keys(self):
-        return self._get_resources(('user', 'keys'), Key, map=SSHKeyListResource)
+    def keys(self, **kwargs):
+        return self._get_resources(('user', 'keys'), Key, map=SSHKeyListResource, **kwargs)
 
-    @property
-    def labs(self):
-        return self._get_resources(('account/features'), Feature, map=filtered_key_list_resource_factory(lambda obj: obj.kind == 'user'))
+    def labs(self, **kwargs):
+        return self.features(**kwargs)
+
+    def features(self, **kwargs):
+        return self._get_resources(('account/features'), AccountFeature, **kwargs)
 
     @property
     def rate_limit(self):
