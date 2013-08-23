@@ -19,7 +19,7 @@ heroku_conn = heroku.from_key(HEROKU_API_KEY)
 #domain.remove()
 #print newapp.domains()
 
-app = heroku_conn.app('martinsharehoodadmin')
+app = heroku_conn.app('sharehoodfrontend')
 #app.enable_feature('user-env-compile')
 #app.disable_feature('user-env-compile')
 #print app.labs()
@@ -32,7 +32,17 @@ app = heroku_conn.app('martinsharehoodadmin')
 #domain = app.add_domain('testyzz6.testing.com')
 #domain = app.add_domain('testyzz7.testing.com')
 
-print app.domains(limit=1)
+#iterator = app.stream_log(lines=1)
+#for line in iterator:
+
+    # filter out keep-alive new lines
+    #if line:
+        #print "{0}".format(line)
+
+logs = app.get_log(lines=100)
+print logs
+
+#print app.domains(limit=1)
 #print app.domains(valrange='domain ]martinsharehoodadmin.herokuapp.com..; max=1')
 #dyno = app.run_command_detached('fab celery.shutdown_process', printout=True)
 #dyno = app.run_command_detached('fab -l', printout=True)

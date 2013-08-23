@@ -482,6 +482,30 @@ class App(BaseResource):
         item = self._h._resource_deserialize(r.content.decode("utf-8"))
         return AppFeature.new_from_dict(item, h=self._h, app=self)
 
+    def create_logdrain(self, url):
+
+        r = self._h._http_resource(
+            method='POST',
+            resource=('apps', self.id, 'log-drains'),
+            data=self._h._resource_serialize({'url': url})
+        )
+
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return LogDrain.new_from_dict(item, h=self._h, app=self)
+
+    def remove_logdrain(self, id_or_url):
+
+        r = self._h._http_resource(
+            method='DELETE',
+            resource=('apps', self.id, 'log-drains', id_or_url),
+        )
+
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return LogDrain.new_from_dict(item, h=self._h, app=self)
+
+##########################################################################
     def rollback(self, release):
         """Rolls back the release to the given version."""
         r = self._h._http_resource(
@@ -531,39 +555,43 @@ class App(BaseResource):
         )
         return r.ok
 
-    def logs(self, num=None, source=None, ps=None, tail=False):
-        """Returns the requested log."""
+    def stream_log(self, dyno=None, lines=100, source=None):
+        logger = self._logger(dyno=dyno, lines=lines, source=source, tail=True)
 
-        # Bootstrap payload package.
-        payload = {'logplex': 'true'}
+        return logger.stream()
 
-        if num:
-            payload['num'] = num
+    def get_log(self, dyno=None, lines=100, source=None):
+        logger = self._logger(dyno=dyno, lines=lines, source=source, tail=0)
+
+        return logger.get()
+
+    def _logger(self, dyno=None, lines=100, source=None, tail=0):
+
+        payload = {}
+        if dyno:
+            payload['dyno'] = dyno
+
+        if tail:
+            payload['tail'] = tail
 
         if source:
             payload['source'] = source
 
-        if ps:
-            payload['ps'] = ps
+        if lines:
+            payload['lines'] = lines
 
-        if tail:
-            payload['tail'] = 1
-
-        # Grab the URL of the logplex endpoint.
+        print payload
         r = self._h._http_resource(
-            method='GET',
-            resource=('apps', self.name, 'logs'),
-            data=payload
+            method='POST',
+            resource=('apps', self.id, 'log-sessions'),
+            data=self._h._resource_serialize(payload)
         )
 
-        # Grab the actual logs.
-        r = requests.get(r.content.decode("utf-8"), verify=False, stream=True)
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        print item
 
-        if not tail:
-            return r.content
-        else:
-            # Return line iterator for tail!
-            return r.iter_lines()
+        return LogSession.new_from_dict(item, h=self._h, app=self)
 
 
 class Collaborator(BaseResource):
@@ -889,3 +917,50 @@ class Dyno(BaseResource):
         r.raise_for_status()
 
         return r.ok
+
+
+class LogDrain(BaseResource):
+    _strs = ['id', 'url']
+    _map = {'addon': Addon}
+    _dates = ['created_at', 'updated_at']
+    _pks = ['id']
+
+    def __init__(self):
+        self.app = None
+        super(LogDrain, self).__init__()
+
+    def __repr__(self):
+        return "<logdrain '{0}'>".format(self.id)
+
+    def remove(self):
+        r = self._h._http_resource(
+            method='DELETE',
+            resource=('apps', self.app.id, 'log-drains', self.id)
+        )
+
+        r.raise_for_status()
+
+        return r.ok
+
+
+class LogSession(BaseResource):
+    _strs = ['id', 'logplex_url', 'dyno', 'source']
+    _ints = ['lines']
+    _bools = ['tail']
+    _dates = ['created_at', 'updated_at']
+    _pks = ['id']
+
+    def __init__(self):
+        self.app = None
+        super(LogSession, self).__init__()
+
+    def __repr__(self):
+        return "<logsession '{0}'>".format(self.id)
+
+    def stream(self):
+        r = requests.get(self.logplex_url, verify=False, stream=True)
+        return r.iter_lines()
+
+    def get(self):
+        r = requests.get(self.logplex_url, verify=False, stream=True)
+        return r.content.decode("utf-8")
