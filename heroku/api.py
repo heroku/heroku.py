@@ -9,11 +9,22 @@ This module provides the basic API interface for Heroku.
 
 from .compat import json
 from .helpers import is_collection
-from .models import * # noqa
-from .structures import KeyedListResource
-from heroku.models import AccountFeature
+from .models import AddonService, RateLimit
+from .models.app import App
+from .models.addon import Addon
+from .models.account import Account
+from .models.key import Key
+from .structures import KeyedListResource, SSHKeyListResource
+from .models.account.feature import AccountFeature
 from requests.exceptions import HTTPError
 import requests
+import sys
+
+if sys.version_info > (3, 0):
+    from urllib.parse import quote
+else:
+    from urllib import quote # noqa
+
 
 HEROKU_URL = 'https://api.heroku.com'
 
@@ -197,15 +208,12 @@ class HerokuCore(object):
             valrange = r.headers['Next-Range']
             print "Warning Response was chunked, Loading the next Chunk using the following next-range header returned by Heroku '{0}'. WARNING - This breaks randomly depending on your order_by name. I think it's only guarenteed to work with id's - Looks to be a Heroku problem".format(valrange)
             new_items = self._get_data(resource, params=params, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange)
-            print "New Items\n"
-            pprint(new_items)
             items.extend(new_items)
 
         return items
 
     def _process_items(self, d_items, obj, map=None, **kwargs):
 
-        pprint(d_items)
         items = [obj.new_from_dict(item, h=self, **kwargs) for item in d_items]
 
         if map is None:
@@ -237,9 +245,9 @@ class Heroku(HerokuCore):
 
     def addon_services(self, id_or_name=None, **kwargs):
         if id_or_name is not None:
-            return self._get_resource(('addon-services/{0}'.format(quote(id_or_name))), AvailableAddon)
+            return self._get_resource(('addon-services/{0}'.format(quote(id_or_name))), AddonService)
         else:
-            return self._get_resources(('addon-services'), AvailableAddon, **kwargs)
+            return self._get_resources(('addon-services'), AddonService, **kwargs)
 
     def apps(self, **kwargs):
         return self._get_resources(('apps'), App, **kwargs)
