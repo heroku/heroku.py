@@ -58,6 +58,7 @@ centres around calls to the api which result in list objects being returned.
 e.g. multiple objects like apps, addons, releases etc.
 
 You can control ordering, limits and pagination by supplying the following keywords::
+
     order_by=<'id'|'name'|'seq'>  
     limit=<num>
     valrange=<string> - See api docs for this
