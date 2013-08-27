@@ -56,10 +56,13 @@ General notes about list Objects
 The new heroku API gives greater control over the interaction of the returned data. Primarily this 
 centres around calls to the api which result in list objects being returned. 
 e.g. multiple objects like apps, addons, releases etc.
-You can control ordering, limits and pagination by supplying the following keywords
-order_by=<'id'|'name'|'seq'>  **You'll have to investigate the api for each object to work out which fields can be ordered by**
-limit=<num>
-valrange=<string> - See api docs for this
+
+You can control ordering, limits and pagination by supplying the following keywords::
+    order_by=<'id'|'name'|'seq'>  
+    limit=<num>
+    valrange=<string> - See api docs for this
+
+**You'll have to investigate the api for each object to work out which fields can be ordered by**
 
 Examples
 ~~~~~~~~
