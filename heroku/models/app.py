@@ -362,11 +362,11 @@ class App(BaseResource):
         item = self._h._resource_deserialize(r.content.decode("utf-8"))
         return AppTransfer.new_from_dict(item, h=self._h, app=self)
 
-    def enable_maintence_mode(self):
+    def enable_maintenance_mode(self):
         """Enables maintenance mode."""
         return self.update(maintenance=True)
 
-    def disable_maintence_mode(self):
+    def disable_maintenance_mode(self):
         """Disables maintenance mode."""
         return self.update(maintenance=0)
 

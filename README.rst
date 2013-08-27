@@ -13,9 +13,6 @@ You can interact with the API as a pure api using the functionlity under the Gen
 or you can use the returned objects in an OO style, using the object API further down the page.
 You can of course mix and match as you see fit.
 
-Intro
------
-
 First instantiate a heroku_conn as above::
     
     import heroku
@@ -57,7 +54,7 @@ The new heroku API gives greater control over the interaction of the returned da
 centres around calls to the api which result in list objects being returned. 
 e.g. multiple objects like apps, addons, releases etc.
 
-Throughout the docs you'll see references to using limit & order_by. Wherever you see these, you *should* be able to use limit, order_by and valrange.
+Throughout the docs you'll see references to using limit & order_by. Wherever you see these, you *should* be able to use *limit*, *order_by* and *valrange*.
 
 You can control ordering, limits and pagination by supplying the following keywords::
 
