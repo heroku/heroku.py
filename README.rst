@@ -1,8 +1,8 @@
 Heroku.py
 =========
 
-This is the updated Python wrapper for the Heroku API V3 (beta). The Heroku REST API
-allows Heroku users to manage their accounts, applications, addons, and
+This is the updated Python wrapper for the Heroku `API V3 (beta). <https://devcenter.heroku.com/articles/platform-api-reference>`_ 
+The Heroku REST API allows Heroku users to manage their accounts, applications, addons, and
 other aspects related to Heroku. It allows you to easily utilize the Heroku
 platform from your applications.
 
@@ -93,6 +93,11 @@ E.g.Probably stupid...::
 
     dyno = heroku_conn.apps()['myapp'].dynos(limit=1)['web.1']
     
+
+Legacy API Calls
+================
+
+The API has been built with an internal legacy=True ability, so any functionlity not implemented in the new API can be called via the previous legacy API. This is currently only used for *rollbacks*.
 
 General API
 ===========
