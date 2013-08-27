@@ -33,7 +33,7 @@ Interact with your applications::
 General notes on Debugging
 --------------------------
 
-Heroku provides some useful debugging information. This code exposes the following:-
+Heroku provides some useful debugging information. This code exposes the following
 
 Ratelimit Remaining
 ~~~~~~~~~~~~~~~~~~~
