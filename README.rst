@@ -114,7 +114,7 @@ e.g.
 Legacy API Calls
 ================
 
-The API has been built with an internal legacy=True ability, so any functionlity not implemented in the new API can be called via the previous legacy API. This is currently only used for *rollbacks*.
+The API has been built with an internal legacy=True ability, so any functionlity not implemented in the new API can be called via the previous `legacy API <https://legacy-api-docs.herokuapp.com/>`_. This is currently only used for *rollbacks*.
 
 
 Object API
@@ -447,6 +447,10 @@ release information::
 
     for release in app.releases():
         print "{0}-{1} released by {2} on {3}".format(release.id, release.description, release.user.name, release.created_at)
+
+Rollbck to a release::
+
+    app.rollback(release.version)
 
 Rename App
 ~~~~~~~~~~

@@ -19,11 +19,21 @@ heroku_conn = heroku.from_key(HEROKU_API_KEY)
 #domain.remove()
 #print newapp.domains()
 
-#app = heroku_conn.app('martinsharehoodadmin')
-apps = heroku_conn.apps(order_by='name')
+app = heroku_conn.app('martinsharehoodadmin')
+releases = app.releases()
+for release in releases:
+    print "{0} - {1}".format(release.id, release.version)
+#releases = app.releases()._items.reverse()
+#print releases.pop()
+#print releases.pop()
 
-for app in apps:
-    print app.name
+app.rollback('v108')
+
+
+#apps = heroku_conn.apps(order_by='name')
+
+#for app in apps:
+    #print app.name
 
 #app.rename('martyzz1test1')
 
@@ -73,7 +83,6 @@ for app in apps:
     #print dyno.command
     #dyno.restart()
 
-#pprint(app.releases(limit=10))
 #app.restart()
 #del config['TEST2']
 

@@ -158,6 +158,9 @@ class HerokuCore(object):
         if 'Request-Id' in r.headers:
             self._last_request_id = r.headers['Request-Id']
 
+        if 'Accept-Ranges' in r.headers:
+            print "Accept-Ranges = {0}".format(r.headers['Accept-Ranges'])
+
         #print "STATUS_CODE = {0}".format(r.status_code)
         if r.status_code == 422:
             http_error = HTTPError('%s - %s Client Error: %s' %
@@ -196,14 +199,11 @@ class HerokuCore(object):
         return self._process_items(self._get_data(resource, params=params, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange), obj, map=map, **kwargs)
 
     def _get_data(self, resource, params=None, legacy=None, order_by=None, limit=None, valrange=None):
-        print "In _get_data"
 
         r = self._http_resource('GET', resource, params=params, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange)
-        print r.content.decode("utf-8")
-        print self._last_request_id
 
         items = self._resource_deserialize(r.content.decode("utf-8"))
-        if r.status_code == 206 and 'Next-Range' in r.headers:# and not limit:
+        if r.status_code == 206 and 'Next-Range' in r.headers and not limit:
             #We have unexpected chunked response - deal with it
             valrange = r.headers['Next-Range']
             print "Warning Response was chunked, Loading the next Chunk using the following next-range header returned by Heroku '{0}'. WARNING - This breaks randomly depending on your order_by name. I think it's only guarenteed to work with id's - Looks to be a Heroku problem".format(valrange)

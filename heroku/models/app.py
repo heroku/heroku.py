@@ -435,7 +435,6 @@ class App(BaseResource):
 
         return LogSession.new_from_dict(item, h=self._h, app=self)
 
-    ##################################################################
     def releases(self, **kwargs):
         """The releases for this app."""
         return self._h._get_resources(
@@ -448,11 +447,11 @@ class App(BaseResource):
         r = self._h._http_resource(
             method='POST',
             resource=('apps', self.name, 'releases'),
-            data={'rollback': release},
+            params={'rollback': release},
             legacy=True
         )
         r.raise_for_status()
-        return self.releases[-1]
+        return self.releases()[-1]
 
 
 class AppTransfer(BaseResource):
