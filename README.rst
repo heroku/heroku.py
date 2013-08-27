@@ -84,6 +84,32 @@ E.g.Probably stupid...::
 
     dyno = heroku_conn.apps()['myapp'].dynos(limit=1)['web.1']
     
+General Notes on Objects
+------------------------
+
+To find out the Attributes available for a given object, look at the corresponding Documentation for that object.
+e.g.
+
+`Formation <https://devcenter.heroku.com/articles/platform-api-reference#formation>`_ Object::
+
+    >>>print feature.command
+    bundle exec rails server -p $PORT
+    
+    >>>print feature.created_at
+    2012-01-01T12:00:00Z
+
+    >>>print feature.id
+    01234567-89ab-cdef-0123-456789abcdef
+
+    >>>print feature.quantity
+    1
+    >>>print feature.size
+    1
+    >>>print feature.type
+    web
+
+    >>>print feature.updated_at
+    2012-01-01T12:00:00Z
 
 Legacy API Calls
 ================
