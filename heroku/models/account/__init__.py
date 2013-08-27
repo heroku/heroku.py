@@ -19,6 +19,13 @@ class Account(BaseResource):
     def __repr__(self):
         return "<account '{0}'>".format(self.email)
 
+    def keys(self, **kwargs):
+        """The collaborators for this app."""
+        return self._h._get_resources(
+            resource=('account', 'keys'),
+            obj=Key, app=self, **kwargs
+        )
+
     def add_key(self, key):
         r = self._h._http_resource(
             method='POST',

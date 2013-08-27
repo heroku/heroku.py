@@ -236,7 +236,6 @@ class Heroku(HerokuCore):
     def __repr__(self):
         return '<heroku-client at 0x%x>' % (id(self))
 
-    @property
     def account(self):
         return self._get_resource(('account'), Account)
 
@@ -311,6 +310,10 @@ class Heroku(HerokuCore):
         else:
             self.rate_limit
             return self._ratelimit_remaining
+
+    @property
+    def last_request_id(self):
+        return self._last_request_id
 
 
 class ResponseError(ValueError):

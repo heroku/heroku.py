@@ -37,12 +37,18 @@ class App(BaseResource):
         return "<app '{0}'>".format(self.name)
 
     def addons(self, **kwargs):
+        """
+        Returns a list of your apps as app objects.
+        """
         return self._h._get_resources(
             resource=('apps', self.name, 'addons'),
             obj=Addon, app=self, **kwargs
         )
 
     def delete(self):
+        """
+        Destroys the current app
+        """
         r = self._h._http_resource(
             method='DELETE',
             resource=('apps', self.id)
@@ -51,7 +57,14 @@ class App(BaseResource):
         return r.ok
 
     def add_collaborator(self, email=None, id=None, silent=0):
-
+        """
+        Adds a collaborator to your app
+        must specify
+        email = <email address>
+        or
+        user id
+        [silent 1|0]  Specifies whether to email the collaborator or not
+        """
         assert(email or id)
         payload = {}
         user = {}
@@ -80,6 +93,10 @@ class App(BaseResource):
         return Collaborator.new_from_dict(item, h=self._h, app=self)
 
     def remove_collaborator(self, id_or_email):
+        """
+        Removes a collaborator from a project
+        options = id_or_email
+        """
         r = self._h._http_resource(
             method='DELETE',
             resource=('apps', self.name, 'collaborators', id_or_email)
@@ -110,6 +127,16 @@ class App(BaseResource):
             method='POST',
             resource=('apps', self.name, 'addons'),
             data=self._h._resource_serialize(payload)
+        )
+
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return Addon.new_from_dict(item, h=self._h, app=self)
+
+    def remove_addon(self, id):
+        r = self._h._http_resource(
+            method='DELETE',
+            resource=('apps', self.id, 'addons', id),
         )
 
         r.raise_for_status()
