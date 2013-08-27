@@ -482,6 +482,16 @@ class AppTransfer(BaseResource):
         item = self._h._resource_deserialize(r.content.decode("utf-8"))
         return AppTransfer.new_from_dict(item, h=self._h, app=self)
 
+    def delete(self):
+        r = self._h._http_resource(
+            method='DELETE',
+            resource=('account', 'app-transfers', self.id),
+        )
+
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return AppTransfer.new_from_dict(item, h=self._h, app=self)
+
 
 class AppFeature(BaseResource):
     _strs = ['name', 'description', 'doc_url', 'id']

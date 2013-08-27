@@ -57,15 +57,30 @@ The new heroku API gives greater control over the interaction of the returned da
 centres around calls to the api which result in list objects being returned. 
 e.g. multiple objects like apps, addons, releases etc.
 
+Throughout the docs you'll see references to using limit & order_by. Wherever you see these, you *should* be able to use limit, order_by and valrange.
+
 You can control ordering, limits and pagination by supplying the following keywords::
 
-    order_by=<'id'|'name'|'seq'>  
+    order_by=<'id'|'seq'>  
     limit=<num>
-    valrange=<string> - See api docs for this
+    valrange=<string> - See api docs for this, This value is passed straight through to the API call *as is*.
 
-**You'll have to investigate the api for each object to work out which fields can be ordered by**
+**You'll have to investigate the api for each object's *Accept-Ranges* header to work out which fields can be ordered by**
 
-List objects can be referred to directly by their primary key too::
+Examples
+~~~~~~~~
+
+List all apps in name order::
+
+    heroku_conn.apps(order_by='name')
+
+List the first 10 releases::
+
+    app.releases(order_by='seq', limit=10)
+    heroku_conn.apps()['empty-spring-4049'].releases(order_by='seq', limit=10)
+
+
+List objects can be referred to directly by *any* of their primary keys too::
 
     app = heroku_conn.apps()['myapp']
     dyno = heroku_conn.apps()['myapp_id'].dynos()['web.1']
@@ -78,18 +93,6 @@ E.g.Probably stupid...::
 
     dyno = heroku_conn.apps()['myapp'].dynos(limit=1)['web.1']
     
-
-Examples
-~~~~~~~~
-
-List all apps in name order::
-
-    heroku_conn.apps(order_by='name')
-
-List the first 10 releases::
-
-    heroku_conn.apps['empty-spring-4049'].releases(order_by='seq', limit=10)
-
 
 General API
 ===========
@@ -106,7 +109,7 @@ Get account::
 
     account = heroku_conn.account()
 
-Keys
+SSH Keys
 ~~~~
 
 List all configured keys::
@@ -148,7 +151,7 @@ List all available Addon Services::
 
 Get specific available Addon Service::
 
-    addonservice = heroku_conn.addon_services(id_or_name)
+    addonservice = heroku_conn.addon_services(<id_or_name>)
 
 App
 --------
@@ -164,7 +167,7 @@ List all apps::
 
 Get specific app::
 
-    app = heroku_conn.app(id_or_name)
+    app = heroku_conn.app(<id_or_name>)
     app = heroku_conn.apps[id_or_name]
 
 Destroy an app (**Warning this is irreversible**)::
@@ -177,23 +180,23 @@ Addons
 List all Addons::
 
     addonlist = app.addons(order_by='id')
-    addonlist = applist[id_or_name].addons(limit=10)
+    addonlist = applist[<id_or_name>].addons(limit=10)
 
 Install an Addon::
 
-    addon = app.install_addon(plan_id=id, config={})
-    addon = app.install_addon(plan_name=name, config={})
+    addon = app.install_addon(plan_id='<id>', config={})
+    addon = app.install_addon(plan_name='<name>', config={})
     addon = app.install_addon(plan_id=addonservice.id, config={})
 
 Remove an Addon::
 
-    addon = app.remove_addon(id)
+    addon = app.remove_addon(<id>)
     addon = app.remove_addon(addonservice.id)
     addon.delete()
 
 Update/Upgrade an Addon::
 
-    addon = addon.upgrade(name=<name>, config={})
+    addon = addon.upgrade(name='<name>', config={})
 
 App Labs/Features
 ~~~~~~~~~~~~~
@@ -201,16 +204,16 @@ App Labs/Features
 List all features::
 
     appfeaturelist = app.features()
-    appfeaturelist = app.labs() #nicename version
+    appfeaturelist = app.labs() #nicename for features()
     appfeaturelist = app.features(order_by='id', limit=10)
 
 Add a Feature::
 
-    appfeature = app.enable_feature(feature_id_or_name)
+    appfeature = app.enable_feature(<feature_id_or_name>)
 
 Remove a Feature::
 
-    appfeature = app.disable_feature(feature_id_or_name)
+    appfeature = app.disable_feature(<feature_id_or_name>)
 
 App Transfers
 ~~~~~~~~~~~~~
@@ -227,8 +230,8 @@ Create a Transfer::
 
 Delete a Transfer::
 
-    deletedtransfer = app.delete_transfer(transfer_id)
-    deletedtransfer = app.delete_transfer(transfer_id)
+    deletedtransfer = app.delete_transfer(<transfer_id>)
+    deletedtransfer = transfer.delete()
 
 Update a Transfer's state::
 
@@ -302,10 +305,12 @@ Use Dynos to create one off processes/run commands.
 **You don't "scale" dynos Processes. You "scale" Formations Processes. See Below**
 
 Get a list of running dynos::
+
     dynolist = app.dynos()
     dynolist = app.dynos(order_by='id')
 
 Kill a dyno::
+
     app.kill_dyno(dyno_id_or_name)
     app.dynos['run.1'].kill()
     dyno.kill()
@@ -314,10 +319,12 @@ Kill a dyno::
 **A Handy wrapper for this proceses has been provided below. *N.B. This will only restart Formation processes, it will not kill off other processes*.**
 
 Restart a Dyno::
+
     #a simple wrapper aroundf dyno.kill() with run protection
     dyno.restart()
 
 Restart all your app's Formation configured Dyno's::
+
     app.restart()
 
 Run a command without attaching to it. e.g. start a command and return the dyno object representing the command::
@@ -325,6 +332,7 @@ Run a command without attaching to it. e.g. start a command and return the dyno 
     dyno = app.run_command_detached('fab -l', size=1)
 
 Run a command and attach to it, returning the commands output as a string::
+
     #printout  is used to control if the task should also print to STDOUT - useful for long running processes
     #size = is the processes dyno size 1X(default), 2X, 3X etc...
     output = app.run_command('fab -l', size=1, printout=True)
@@ -344,10 +352,12 @@ Get a list of your configured Processes::
     proc = heroku_conn.apps()['myapp'].process_formation()['web']
 
 Scale your Procfile processes::
+
     app.process_formation()['web'].scale(2) 
     app.process_formation()['web'].scale(0) 
         
 Resize your Procfile Processes::
+
     app.process_formation()['web'].resize(2) # for 2X
     app.process_formation()['web'].resize(1) # for 1X
 
@@ -356,13 +366,16 @@ Log Drains
 ~~~~~~~~~~
 
 List all active logdrains::
+
     logdrainlist = app.logdrains()
     logdrainlist = app.logdrains(order_by='id')
 
 Create a logdrain::
+
     loggdrain = app.create_logdrain(<url>)
 
 Remove a logdrain::
+
     delete_logdrain - app.remove_logdrain(<id_or_url>)
 
 
@@ -380,12 +393,24 @@ Access the logs::
 
 
 You can even stream the tail::
+
     #accepts the same params as above - lines|dyno|source
     for line in app.stream_log(lines=1):
          print line
 
     2011-12-21T22:53:47+00:00 heroku[web.1]: State changed from down to created
     2011-12-21T22:53:47+00:00 heroku[web.1]: State changed from created to starting
+
+Maintenance Mode
+~~~~~~~~~~~~~~~~
+
+Enable Maintenance Mode::
+
+    app.enable_maintenance_mode()
+
+Disable Maintenance Mode::
+
+    app.disable_maintenance_mode()
 
 OAuth
 ~~~~~
@@ -396,13 +421,21 @@ Release
 ~~~~~~~
 
 List all releases::
+
     releaselist = app.releases()
     releaselist = app.releases(order_by='seq')
 
 release information::
+
     for release in app.releases():
         print "{0}-{1} released by {2} on {3}".format(release.id, release.description, release.user.name, release.created_at)
 
+Rename App
+~~~~~~~~~~
+
+Rename App::
+
+    app.rename('Carrot-kettle-teapot-1898')
 
 Customized Sessions
 -------------------
