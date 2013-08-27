@@ -19,8 +19,10 @@ heroku_conn = heroku.from_key(HEROKU_API_KEY)
 #domain.remove()
 #print newapp.domains()
 
-app = heroku_conn.app('martinsharehoodadmin')
-print app
+#app = heroku_conn.app('martinsharehoodadmin')
+apps = heroku_conn.apps(order_by='name')
+
+print apps
 
 #app.rename('martyzz1test1')
 
@@ -53,7 +55,7 @@ print app
 #dyno = app.run_command_detached('fab -l')
 #dyno = app.run_command('fab -l', printout=True)
 #dyno.remove()
-print heroku_conn.apps()['martinsharehoodadmin'].process_formation()['web']
+#print heroku_conn.apps()['martinsharehoodadmin'].process_formation()['web']
 #formations = app.process_formation()
 #print formations['web']
 #for formation in formations:
