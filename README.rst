@@ -318,11 +318,11 @@ Kill a dyno::
 
 **Restarting your dynos is achieved by killing existing dynos, and allowing heroku to auto start them. A Handy wrapper for this proceses has been provided below.**
 
-*N.B. This will only restart Formation processes, it will not kill off other processes*.*
+*N.B. This will only restart Formation processes, it will not kill off other processes.*
 
 Restart a Dyno::
 
-    #a simple wrapper aroundf dyno.kill() with run protection
+    #a simple wrapper around dyno.kill() with run protection so won't kill any proc of type='run' e.g. 'run.1'
     dyno.restart()
 
 Restart all your app's Formation configured Dyno's::
@@ -355,8 +355,8 @@ Get a list of your configured Processes::
 
 Scale your Procfile processes::
 
-    app.process_formation()['web'].scale(2) 
-    app.process_formation()['web'].scale(0) 
+    app.process_formation()['web'].scale(2) # run 2 dynos
+    app.process_formation()['web'].scale(0) # don't run any dynos
         
 Resize your Procfile Processes::
 
