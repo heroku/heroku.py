@@ -9,7 +9,7 @@ This module provides the basic API interface for Heroku.
 
 from .compat import json
 from .helpers import is_collection
-from .models import AddonService, RateLimit
+from .models import Plan, RateLimit
 from .models.app import App
 from .models.addon import Addon
 from .models.account import Account
@@ -244,9 +244,9 @@ class Heroku(HerokuCore):
 
     def addon_services(self, id_or_name=None, **kwargs):
         if id_or_name is not None:
-            return self._get_resource(('addon-services/{0}'.format(quote(id_or_name))), AddonService)
+            return self._get_resource(('addon-services/{0}'.format(quote(id_or_name))), Plan)
         else:
-            return self._get_resources(('addon-services'), AddonService, **kwargs)
+            return self._get_resources(('addon-services'), Plan, **kwargs)
 
     def apps(self, **kwargs):
         return self._get_resources(('apps'), App, **kwargs)

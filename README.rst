@@ -65,6 +65,20 @@ You can control ordering, limits and pagination by supplying the following keywo
 
 **You'll have to investigate the api for each object to work out which fields can be ordered by**
 
+List objects can be referred to directly by their primary key too::
+
+    app = heroku_conn.apps()['myapp']
+    dyno = heroku_conn.apps()['myapp_id'].dynos()['web.1']
+    proc = heroku_conn.apps()['my_app'].process_formation()['web']
+
+**Using the api in this way though may result in more api calls than you realise. If you wish to avoid excessive api calls try using the General API wrapper**
+
+**Be careful if you use *limit* in a list call *and* refer directly to an primary key** 
+E.g.Probably stupid...::
+
+    dyno = heroku_conn.apps()['myapp'].dynos(limit=1)['web.1']
+    
+
 Examples
 ~~~~~~~~
 
@@ -124,7 +138,7 @@ Enable a feature::
     feature = account.enable_feature(id_or_name)
     feature.enable()
 
-Addon Services
+Plans - or Addon Services
 --------------
 
 List all available Addon Services::
@@ -265,85 +279,129 @@ Remove a config Variable::
 Domains
 ~~~~~~~
 
-Process Formation
-~~~~~~~~~~~~~~~~~
+Get a list of domains configured for this app::
+    
+    domainlist = app.domains(order_by='id')
 
-Scale them up::
+Add a domain to this app::
 
-    >>> app.processes
-    [<process 'web.1'>, <process 'worker.1'>]
+    domain = app.add_domain('domain_hostname')
 
-    >>> app.processes['web']
-    [<process 'web.1'>]
+Remove a domain from an app::
 
-    >>> app.processes['web'].scale(3)
-    [<process 'web.1'>, <process 'web.2'>, <process 'web.3'>]
+    domain = app.remove_domain('domain_hostname')
 
-    >>> app.processes[0].stop()
-    True
+Dynos & Process Formations
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Dynos
+_______
+
+Dynos represent all your running dyno processes. Use dynos to investigate whats running on your app.
+Use Dynos to create one off processes/run commands.
+**You don't "scale" dynos Processes. You "scale" Formations Processes. See Below**
+
+Get a list of running dynos::
+    dynolist = app.dynos()
+    dynolist = app.dynos(order_by='id')
+
+Kill a dyno::
+    app.kill_dyno(dyno_id_or_name)
+    app.dynos['run.1'].kill()
+    dyno.kill()
+
+**Restarting your dynos is achieved by killing existing dynos, and allowing heroku to auto start them**
+**A Handy wrapper for this proceses has been provided below. *N.B. This will only restart Formation processes, it will not kill off other processes*.**
+
+Restart a Dyno::
+    #a simple wrapper aroundf dyno.kill() with run protection
+    dyno.restart()
+
+Restart all your app's Formation configured Dyno's::
+    app.restart()
+
+Run a command without attaching to it. e.g. start a command and return the dyno object representing the command::
+
+    dyno = app.run_command_detached('fab -l', size=1)
+
+Run a command and attach to it, returning the commands output as a string::
+    #printout  is used to control if the task should also print to STDOUT - useful for long running processes
+    #size = is the processes dyno size 1X(default), 2X, 3X etc...
+    output = app.run_command('fab -l', size=1, printout=True)
+    print output
+
+Formations
+_________
+
+Formations represent the dynos that you have configured in your Procfile - whether they are running or not.
+Use Formations to scale dynos up and down
+
+Get a list of your configured Processes::
+
+    proclist = app.process_formation()
+    proclist = app.process_formation(order_by='id')
+    proc = app.process_formation()['web']
+    proc = heroku_conn.apps()['myapp'].process_formation()['web']
+
+Scale your Procfile processes::
+    app.process_formation()['web'].scale(2) 
+    app.process_formation()['web'].scale(0) 
+        
+Resize your Procfile Processes::
+    app.process_formation()['web'].resize(2) # for 2X
+    app.process_formation()['web'].resize(1) # for 1X
+
+
+Log Drains
+~~~~~~~~~~
+
+List all active logdrains::
+    logdrainlist = app.logdrains()
+    logdrainlist = app.logdrains(order_by='id')
+
+Create a logdrain::
+    loggdrain = app.create_logdrain(<url>)
+
+Remove a logdrain::
+    delete_logdrain - app.remove_logdrain(<id_or_url>)
+
+
+
+Log Sessions
+~~~~~~~~~~~~
 
 Access the logs::
 
-    >>> print app.logs(num=2)
+    log = app.get_log()
+    log = app.get_log(lines=100)
+    print app.get_log(dyno='web.1', lines=2, source='app')
     2011-12-21T22:53:47+00:00 heroku[web.1]: State changed from down to created
     2011-12-21T22:53:47+00:00 heroku[web.1]: State changed from created to starting
-
-    >>> print app.logs(num=2, tail=True)
-    <generator object stream_decode_response_unicode at 0x101151d20>
 
 
 You can even stream the tail::
-
-    >>> for line in app.logs(tail=True):
-    ...     print line
+    #accepts the same params as above - lines|dyno|source
+    for line in app.stream_log(lines=1):
+         print line
 
     2011-12-21T22:53:47+00:00 heroku[web.1]: State changed from down to created
     2011-12-21T22:53:47+00:00 heroku[web.1]: State changed from created to starting
-    ...
 
+OAuth
+~~~~~
 
-Change app configration::
+**Not Implemented Yet**
 
-    >>> app.config['DEBUG'] = 1
-    >>> app.config
-    {u'DEBUG': 1, u'PATH': u'bin:/usr/local/bin:/usr/bin:/bin', u'PYTHONUNBUFFERED': True}
+Release
+~~~~~~~
 
-    >>> del app.config['DEBUG']
+List all releases::
+    releaselist = app.releases()
+    releaselist = app.releases(order_by='seq')
 
-See release history::
-
-    >>> app.releases
-    [<release 'v1'>, <release 'v2'>, ..., <release 'v84'>]
-
-
-    >>> release = app.releases[-2]
-    >>> release.name
-    v84
-
-    >>> release.env
-    {u'PATH': u'bin:/usr/local/bin:/usr/bin:/bin', u'PYTHONUNBUFFERED': True}
-
-    >>> release.pstable
-    {u'web': u'gunicorn httpbin:app -b "0.0.0.0:$PORT"'}
-
-    >>> release.addons
-    [u'blitz:250', u'custom_domains:basic', u'logging:basic', u'releases:advanced']
-
-    >>> release.rollback()
-    <release 'v85'>
-
-Create a new app::
-
-    >>> cloud.apps.add('myapp')
-    <app 'myapp'>
-
-Delete the app completely::
-
-    >>> app.destroy()
-    True
-
-And much more. Detailed docs forthcoming.
+release information::
+    for release in app.releases():
+        print "{0}-{1} released by {2} on {3}".format(release.id, release.description, release.user.name, release.created_at)
 
 
 Customized Sessions

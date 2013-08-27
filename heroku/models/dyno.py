@@ -2,6 +2,10 @@ from . import BaseResource
 from .release import Release
 
 
+class RestartRunException(Exception):
+    pass
+
+
 class Dyno(BaseResource):
     _strs = ['id', 'attach_url', 'command', 'name', 'state', 'type']
     _bools = ['attach']
@@ -26,3 +30,9 @@ class Dyno(BaseResource):
         r.raise_for_status()
 
         return r.ok
+
+    def restart(self):
+        if self.type == 'run':
+            raise RestartRunException("Unable to restart a Process of type 'run' as it will not be respawned by Heroku")
+        else:
+            return self.kill()

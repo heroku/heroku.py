@@ -19,7 +19,8 @@ heroku_conn = heroku.from_key(HEROKU_API_KEY)
 #domain.remove()
 #print newapp.domains()
 
-app = heroku_conn.app('martyzz1test1')
+app = heroku_conn.app('martinsharehoodadmin')
+print app
 
 #app.rename('martyzz1test1')
 
@@ -49,18 +50,25 @@ app = heroku_conn.app('martyzz1test1')
 
 #print app.domains(limit=1)
 #print app.domains(valrange='domain ]martinsharehoodadmin.herokuapp.com..; max=1')
-#dyno = app.run_command_detached('fab celery.shutdown_process', printout=True)
+#dyno = app.run_command_detached('fab -l')
 #dyno = app.run_command('fab -l', printout=True)
 #dyno.remove()
-#formations = app.process_formation(limit=1)
+print heroku_conn.apps()['martinsharehoodadmin'].process_formation()['web']
+#formations = app.process_formation()
+#print formations['web']
 #for formation in formations:
-    #formation.scale(0)
+    #formation.resize(1)
     #print app._h._last_request_id
-    #formation.restart()
 
+#print app.dynos()['web.1']
+#print dynos['web.1']
+
+#print heroku_conn.apps()['martinsharehoodadmin']
+#print heroku_conn.apps()['d32b74d8-f5cf-4e3e-95dd-a601668fdb0c']
 #for dyno in app.dynos():
+    #print dyno
+    #print dyno.command
     #dyno.restart()
-    #dyno.scale(1)
 
 #pprint(app.releases(limit=10))
 #app.restart()

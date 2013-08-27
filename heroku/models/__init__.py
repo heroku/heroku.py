@@ -94,15 +94,30 @@ class BaseResource(object):
         return d
 
 
-class AddonService(BaseResource):
+class Price(BaseResource):
+    """Heroku Price."""
+
+    _strs = ['cents', 'unit']
+    _pks = ['cents']
+
+    def __init__(self):
+        self.app = None
+        super(User, self).__init__()
+
+    def __repr__(self):
+        return "<price '{0} per {1}'>".format(self.cents, self.unit)
+
+
+class Plan(BaseResource):
     """Heroku Addon."""
 
-    _strs = ['id', 'name']
-    _pks = ['id']
+    _strs = ['id', 'name', 'description', 'state']
+    _pks = ['name', 'id']
+    _map = {'price', Price}
     _dates = ['created_at', 'updated_at']
 
     def __repr__(self):
-        return "<available-addon '{0}'>".format(self.name)
+        return "<Plan '{0}'>".format(self.name)
 
 
 class User(BaseResource):
@@ -119,19 +134,19 @@ class User(BaseResource):
         return "<user '{0}'>".format(self.email)
 
 
-class Plan(BaseResource):
-    """Heroku Addon."""
+#class Plan(BaseResource):
+    #"""Heroku Addon."""
+#
+    #_strs = ['id', 'name']
+    #_pks = ['id', 'name']
+#
+    #def __init__(self):
+        #self.app = None
+        #super(Plan, self).__init__()
 
-    _strs = ['id', 'name']
-    _pks = ['id', 'name']
-
-    def __init__(self):
-        self.app = None
-        super(Plan, self).__init__()
-
-    def __repr__(self):
-        return "<plan '{0} {1}'>".format(self.id, self.name)
-
+    #def __repr__(self):
+        #return "<plan '{0} {1}'>".format(self.id, self.name)
+#
 
 class RateLimit(BaseResource):
     _strs = ['remaining']

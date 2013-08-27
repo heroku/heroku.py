@@ -3,7 +3,6 @@ from .  import BaseResource, User
 
 class Release(BaseResource):
     _strs = ['description', 'id', 'user', 'commit', 'addons']
-    #_dicts = ['env', 'pstable']
     _ints = ['version']
     _dates = ['created_at', 'updated_at']
     _map = {'user': User}

@@ -14,7 +14,7 @@ class Formation(BaseResource):
     _ints = ['quantity', 'size']
     _bools = ['attached']
     _dates = ['created_at', 'updated_at']
-    _pks = ['process', 'upid']
+    _pks = ['id']
 
     def __init__(self):
         self.app = None
@@ -23,38 +23,12 @@ class Formation(BaseResource):
     def __repr__(self):
         return "<formation '{0}-{1}'>".format(self.type, self.command)
 
-    def restart(self):
-        """Restarts the given process."""
-
-        data = {'type': self.type}
-
-        r = self._h._http_resource(
-            method='POST',
-            resource=('apps', self.app.name, 'ps', 'restart'),
-            data=data,
-            legacy=True
-        )
-
-        r.raise_for_status()
-
     def scale(self, quantity):
         """Scales the given process to the given number of dynos."""
-        if quantity > 0:
-            return self.update(quantity=quantity)
         return self.update(quantity=quantity)
 
-        r = self._h._http_resource(
-            method='POST',
-            resource=('apps', self.app.name, 'ps', 'scale'),
-            data={'type': self.type, 'qty': quantity},
-            legacy=True
-        )
-
-        r.raise_for_status()
-
-        return self
-
-    def size(self, size):
+    def resize(self, size):
+        """Resizes the Dynos to the multiple given"""
         return self.update(size=size)
 
     def update(self, size=None, quantity=None):
@@ -65,9 +39,13 @@ class Formation(BaseResource):
         payload = {}
         if size:
             payload['size'] = size
+        #else:
+            #payload['size'] = self.size
 
-        if quantity:
+        if quantity or quantity == 0:
             payload['quantity'] = quantity
+        #else:
+            #payload['quantity'] = self.quantity
 
         r = self._h._http_resource(
             method='PATCH',

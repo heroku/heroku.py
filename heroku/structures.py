@@ -79,7 +79,7 @@ class DynoListResource(KeyedListResource):
             return super(DynoListResource, self).__getitem__(key)
         except KeyError as why:
 
-            c = [p for p in self._items if key == p.type]
+            c = [p for p in self._items if key == p.name]
 
             if c:
                 return DynoTypeListResource(items=c)
@@ -94,8 +94,33 @@ class DynoTypeListResource(DynoListResource):
 
         super(DynoTypeListResource, self).__init__(*args, **kwargs)
 
-    def scale(self, quantity):
-        return self[0].scale(quantity)
+
+class FormationListResource(KeyedListResource):
+    """KeyedListResource with basic filtering for Formation types."""
+
+    def __init__(self, *args, **kwargs):
+        super(FormationListResource, self).__init__(*args, **kwargs)
+
+    def __getitem__(self, key):
+
+        try:
+            return super(FormationListResource, self).__getitem__(key)
+        except KeyError as why:
+
+            c = [p for p in self._items if key == p.type]
+
+            if c:
+                return FormationTypeListResource(items=c)
+            else:
+                raise why
+
+
+class FormationTypeListResource(FormationListResource):
+    """KeyedListResource with basic filtering for process types."""
+
+    def __init__(self, *args, **kwargs):
+
+        super(FormationTypeListResource, self).__init__(*args, **kwargs)
 
 
 class SSHKeyListResource(KeyedListResource):
@@ -104,16 +129,6 @@ class SSHKeyListResource(KeyedListResource):
     def __init__(self, *args, **kwargs):
 
         super(SSHKeyListResource, self).__init__(*args, **kwargs)
-
-    def clear(self):
-        """Removes all SSH keys from a user's system."""
-
-        r = self._h._http_resource(
-            method='DELETE',
-            resource=('user', 'keys'),
-        )
-
-        return r.ok
 
 
 class FilteredListResource(KeyedListResource):

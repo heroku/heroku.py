@@ -1,6 +1,6 @@
 from ..models import BaseResource, User
 from ..rendezvous import Rendezvous
-from ..structures import DynoListResource
+from ..structures import DynoListResource, FormationListResource
 
 from .addon import Addon
 from .collaborator import Collaborator
@@ -10,6 +10,7 @@ from .dyno import Dyno
 from .formation import Formation
 from .logdrain import LogDrain
 from .logsession import LogSession
+from .region import Region
 from .release import Release
 
 from pprint import pprint
@@ -24,17 +25,18 @@ else:
 class App(BaseResource):
     """Heroku App."""
 
-    _strs = ['buildpack_provided_description', 'git_url', 'id', 'name', 'owner:email', 'owner:id', 'region:id', 'region:name', 'stack', 'web_url']
+    _strs = ['buildpack_provided_description', 'git_url', 'id', 'name', 'stack', 'web_url']
     _ints = ['slug_size', 'repo_size']
     _bools = ['maintenance']
     _dates = ['archived_at', 'created_at', 'released_at', 'updated_at']
+    _map = {'region': Region, 'owner': User}
     _pks = ['name', 'id']
 
     def __init__(self):
         super(App, self).__init__()
 
     def __repr__(self):
-        return "<app '{0}'>".format(self.name)
+        return "<app '{0} - {1}'>".format(self.name, self.id)
 
     def addons(self, **kwargs):
         """
@@ -194,7 +196,7 @@ class App(BaseResource):
             obj=Dyno, app=self, map=DynoListResource, **kwargs
         )
 
-    def remove_dyno(self, dyno_id_or_name):
+    def kill_dyno(self, dyno_id_or_name):
         r = self._h._http_resource(
             method='DELETE',
             resource=('apps', self.id, 'dynos', quote(dyno_id_or_name))
@@ -205,8 +207,9 @@ class App(BaseResource):
         return r.ok
 
     def restart(self):
-        for formation in self.process_formation():
-            formation.restart()
+        for dyno in self.dynos():
+            if dyno.type != 'run':
+                dyno.kill()
         return self
 
     def run_command_detached(self, command, printout=True, size=1):
@@ -239,14 +242,7 @@ class App(BaseResource):
         """The formation processes for this app."""
         return self._h._get_resources(
             resource=('apps', self.name, 'formation'),
-            obj=Formation, app=self, **kwargs#, map=DynoListResource
-        )
-
-    def releases(self, **kwargs):
-        """The releases for this app."""
-        return self._h._get_resources(
-            resource=('apps', self.name, 'releases'),
-            obj=Release, app=self, **kwargs
+            obj=Formation, app=self, map=FormationListResource, **kwargs
         )
 
     @property
@@ -287,6 +283,12 @@ class App(BaseResource):
         item = self._h._resource_deserialize(r.content.decode("utf-8"))
         return AppFeature.new_from_dict(item, h=self._h, app=self)
 
+    def logdrains(self, **kwargs):
+        return self._h._get_resources(
+            resource=('apps', self.id, 'log-drains'),
+            obj=LogDrain, app=self, **kwargs
+        )
+
     def create_logdrain(self, url):
 
         r = self._h._http_resource(
@@ -309,18 +311,6 @@ class App(BaseResource):
         r.raise_for_status()
         item = self._h._resource_deserialize(r.content.decode("utf-8"))
         return LogDrain.new_from_dict(item, h=self._h, app=self)
-
-##########################################################################
-    def rollback(self, release):
-        """Rolls back the release to the given version."""
-        r = self._h._http_resource(
-            method='POST',
-            resource=('apps', self.name, 'releases'),
-            data={'rollback': release},
-            legacy=True
-        )
-        r.raise_for_status()
-        return self.releases[-1]
 
     def rename(self, name):
         """Renames app to given name."""
@@ -444,6 +434,25 @@ class App(BaseResource):
         print item
 
         return LogSession.new_from_dict(item, h=self._h, app=self)
+
+    ##################################################################
+    def releases(self, **kwargs):
+        """The releases for this app."""
+        return self._h._get_resources(
+            resource=('apps', self.name, 'releases'),
+            obj=Release, app=self, **kwargs
+        )
+
+    def rollback(self, release):
+        """Rolls back the release to the given version."""
+        r = self._h._http_resource(
+            method='POST',
+            resource=('apps', self.name, 'releases'),
+            data={'rollback': release},
+            legacy=True
+        )
+        r.raise_for_status()
+        return self.releases[-1]
 
 
 class AppTransfer(BaseResource):
