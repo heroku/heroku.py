@@ -8,12 +8,14 @@ platform from your applications.
 
 Introduction
 ===========
+
 You can interact with the API as a pure api using the functionlity under the General API section,
 or you can use the returned objects in an OO style, using the object API further down the page.
 You can of course mix and match as you see fit.
 
 Intro
 -----
+
 First instantiate a heroku_conn as above::
     
     import heroku
@@ -32,19 +34,25 @@ General notes on Debugging
 --------------------------
 
 Heroku provides some useful debugging information. This code exposes the following:-
+
 Ratelimit Remaining
 ~~~~~~~~~~~~~~~~~~~
+
 Get the current ratelimit remaining::
+
     num = heroku_conn.ratelimit_remaining()
 
 Last Request Id
 ~~~~~~~~~~~~~~~
+
 Get the unique ID of the last request sent to heroku to give them for debugging::
+
     id = heroku_conn.last_request_id
 
 
 General notes about list Objects
 --------------------------------
+
 The new heroku API gives greater control over the interaction of the returned data. Primarily this 
 centres around calls to the api which result in list objects being returned. 
 e.g. multiple objects like apps, addons, releases etc.
@@ -52,12 +60,16 @@ You can control ordering, limits and pagination by supplying the following keywo
 order_by=<'id'|'name'|'seq'>  **You'll have to investigate the api for each object to work out which fields can be ordered by**
 limit=<num>
 valrange=<string> - See api docs for this
+
 Examples
 ~~~~~~~~
+
 List all apps in name order::
+
     heroku_conn.apps(order_by='name')
 
 List the first 10 releases::
+
     heroku_conn.apps['empty-spring-4049'].releases(order_by='seq', limit=10)
 
 
@@ -73,25 +85,32 @@ Account
 -------
 
 Get account::
+
     account = heroku_conn.account()
 
 List all configured keys::
+
     keylist = account.keys(order_by='id')
 
 Add Key::
+
     account.add_key(<public_key_string>)
 
 Remove key::
+
     account.remove_key(<public_key_string - or fingerprint>)
 
 List all configured account "features" (otherwise known as "labs")::
+
     featurelist = account.features()
 
 Disable a feature::
+
     feature = account.disable_feature(id_or_name)
     feature.disable()
 
 Enable a feature::
+
     feature = account.enable_feature(id_or_name)
     feature.enable()
 
@@ -99,10 +118,12 @@ Addon Services
 --------------
 
 List all available Addon Services::
+
     addonlist = heroku_conn.addon_services(order_by='id')
     addonlist = heroku_conn.addon_services()
 
 Get specific available Addon Service::
+
     addonservice = heroku_conn.addon_services(id_or_name)
 
 App
@@ -113,63 +134,80 @@ Although you can access most of this functionlity from the General API
 without instantiating an App object. 
 
 List all apps::
+
     applist = heroku_conn.apps(order_by='id')
     applist = heroku_conn.apps()
 
 Get specific app::
+
     app = heroku_conn.app(id_or_name)
     app = heroku_conn.apps[id_or_name]
 
 Destroy an app (**Warning this is irreversible**)::
+
     app.delete()
 
 Addons
 ~~~~~~
+
 List all Addons::
+
     addonlist = app.addons(order_by='id')
     addonlist = applist[id_or_name].addons(limit=10)
 
 Install an Addon::
+
     addon = app.install_addon(plan_id=id, config={})
     addon = app.install_addon(plan_name=name, config={})
     addon = app.install_addon(plan_id=addonservice.id, config={})
 
 Remove an Addon::
+
     addon = app.remove_addon(id)
     addon = app.remove_addon(addonservice.id)
     addon.delete()
 
 Update/Upgrade an Addon::
+
     addon = addon.upgrade(name=<name>, config={})
 
 App Labs/Features
 ~~~~~~~~~~~~~
+
 List all features::
+
     appfeaturelist = app.features()
     appfeaturelist = app.labs() #nicename version
     appfeaturelist = app.features(order_by='id', limit=10)
 
 Add a Feature::
+
     appfeature = app.enable_feature(feature_id_or_name)
 
 Remove a Feature::
+
     appfeature = app.disable_feature(feature_id_or_name)
 
 App Transfers
 ~~~~~~~~~~~~~
+
 List all Transfers::
+
     transferlist = app.transfers()
     transferlist = app.transfers(order_by='id', limit=10)
 
 Create a Transfer::
+
     transfer = app.create_transfer(id=<user_id>)
     transfer = app.create_transfer(email=<valid_email>)
 
 Delete a Transfer::
+
     deletedtransfer = app.delete_transfer(transfer_id)
     deletedtransfer = app.delete_transfer(transfer_id)
 
 Update a Transfer's state::
+
     transfer.update(state)
     transfer.update("Pending")
     transfer.update("Declined")
@@ -178,30 +216,39 @@ Update a Transfer's state::
     
 Collaborators
 ~~~~~~~~~~~~~
+
 List all Collaborators::
+
     collaboratorlist = app.collaborators()
     collaboratorlist = app.collaborators(order_by='id')
 
 Add a Collaborator::
+
     collaborator = app.add_collaborator(email=<valid_email>, silent=0)
     collaborator = app.add_collaborator(id=user_id, silent=0)
     collaborator = app.add_collaborator(id=user_id, silent=1) #don't send invitation email
 
 Remove a Collaborator::
+
     collaborator = app.remove_collaborator(userid_or_email)
 
 ConfigVars
 ~~~~~~~~~~
+
 Get an apps config::
+
     config = app.config()
 
 Add a config Variable::
+
     config['New_var'] = 'new_val'
 
 Update a config Variable::
+
     config['Existing_var'] = 'new_val'
 
 Remove a config Variable::
+
     del config['Existing_var']
     config['Existing_var'] = None
 
