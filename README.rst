@@ -92,6 +92,9 @@ Get account::
 
     account = heroku_conn.account()
 
+Keys
+~~~~
+
 List all configured keys::
 
     keylist = account.keys(order_by='id')
@@ -104,7 +107,10 @@ Remove key::
 
     account.remove_key(<public_key_string - or fingerprint>)
 
-List all configured account "features" (otherwise known as "labs")::
+Account Features (Heroku Labs)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+List all configured account "features"::
 
     featurelist = account.features()
 
