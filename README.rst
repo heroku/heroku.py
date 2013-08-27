@@ -302,7 +302,8 @@ _______
 
 Dynos represent all your running dyno processes. Use dynos to investigate whats running on your app.
 Use Dynos to create one off processes/run commands.
-**You don't "scale" dynos Processes. You "scale" Formations Processes. See Below**
+
+**You don't "scale" dyno Processes. You "scale" Formations Processes. See Below**
 
 Get a list of running dynos::
 
