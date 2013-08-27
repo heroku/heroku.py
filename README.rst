@@ -303,7 +303,7 @@ _______
 Dynos represent all your running dyno processes. Use dynos to investigate whats running on your app.
 Use Dynos to create one off processes/run commands.
 
-**You don't "scale" dyno Processes. You "scale" Formations Processes. See Below**
+**You don't "scale" dyno Processes. You "scale" Formation Processes. See Formations section Below**
 
 Get a list of running dynos::
 
@@ -312,12 +312,13 @@ Get a list of running dynos::
 
 Kill a dyno::
 
-    app.kill_dyno(dyno_id_or_name)
+    app.kill_dyno(<dyno_id_or_name>)
     app.dynos['run.1'].kill()
     dyno.kill()
 
-**Restarting your dynos is achieved by killing existing dynos, and allowing heroku to auto start them**
-**A Handy wrapper for this proceses has been provided below. *N.B. This will only restart Formation processes, it will not kill off other processes*.**
+**Restarting your dynos is achieved by killing existing dynos, and allowing heroku to auto start them. A Handy wrapper for this proceses has been provided below.**
+
+*N.B. This will only restart Formation processes, it will not kill off other processes*.*
 
 Restart a Dyno::
 
