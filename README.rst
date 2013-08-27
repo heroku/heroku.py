@@ -93,7 +93,7 @@ Get account::
     account = heroku_conn.account()
 
 Keys
-~~~~
+____
 
 List all configured keys::
 
