@@ -9,10 +9,6 @@ platform from your applications.
 Introduction
 ===========
 
-You can interact with the API as a pure api using the functionlity under the General API section,
-or you can use the returned objects in an OO style, using the object API further down the page.
-You can of course mix and match as you see fit.
-
 First instantiate a heroku_conn as above::
     
     import heroku
@@ -83,8 +79,6 @@ List objects can be referred to directly by *any* of their primary keys too::
     dyno = heroku_conn.apps()['myapp_id'].dynos()['web.1']
     proc = heroku_conn.apps()['my_app'].process_formation()['web']
 
-**Using the api in this way though may result in more api calls than you realise. If you wish to avoid excessive api calls try using the General API wrapper**
-
 **Be careful if you use *limit* in a list call *and* refer directly to an primary key** 
 E.g.Probably stupid...::
 
@@ -95,10 +89,6 @@ Legacy API Calls
 ================
 
 The API has been built with an internal legacy=True ability, so any functionlity not implemented in the new API can be called via the previous legacy API. This is currently only used for *rollbacks*.
-
-General API
-===========
-Todo!!!
 
 
 Object API
@@ -159,8 +149,6 @@ App
 --------
 
 The App Class is the starting point for most of the api functionlity.
-Although you can access most of this functionlity from the General API
-without instantiating an App object. 
 
 List all apps::
 

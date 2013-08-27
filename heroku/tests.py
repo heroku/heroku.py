@@ -22,7 +22,8 @@ heroku_conn = heroku.from_key(HEROKU_API_KEY)
 #app = heroku_conn.app('martinsharehoodadmin')
 apps = heroku_conn.apps(order_by='name')
 
-print apps
+for app in apps:
+    print app.name
 
 #app.rename('martyzz1test1')
 
