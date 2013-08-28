@@ -28,21 +28,14 @@ class Rendezvous():
 
         # Require a certificate from the server. We used a self-signed certificate
         # so here ca_certs must be the server certificate itself.
-        print os.getcwd()
-        print "{0}../data/cacert.pem".format(os.path.dirname(os.path.realpath(__file__)))
-        print os.path.abspath(self.cert)
 
         ssl_sock = ssl.wrap_socket(s,
                            ca_certs=self.cert,
                            cert_reqs=ssl.CERT_REQUIRED)
 
-        print "hostname = {0}".format(self.hostname)
-        print "port = {0}".format(self.port)
-        print "secret = {0}".format(self.secret)
         ssl_sock.connect((self.hostname, self.port))
         ssl_sock.write(self.secret)
         data = ssl_sock.read()
-        print "'{0}'".format(data)
         if not data.startswith("rendezvous"):
             raise InvalidResponseFromRendezVous("The Response from the rendezvous server wasn't as expected. Response was - {0}".format(data))
         while True:

@@ -81,15 +81,12 @@ class App(BaseResource):
         payload['silent'] = silent
         payload['user'] = user
 
-        pprint(payload)
-
         r = self._h._http_resource(
             method='POST',
             resource=('apps', self.name, 'collaborators'),
             data=self._h._resource_serialize(payload)
         )
 
-        print r.content.decode("utf-8")
         r.raise_for_status()
         item = self._h._resource_deserialize(r.content.decode("utf-8"))
         return Collaborator.new_from_dict(item, h=self._h, app=self)
@@ -113,8 +110,6 @@ class App(BaseResource):
         plan = {}
         if not config:
             config = {}
-        print "plan_id = {0}".format(plan_id)
-        print "plan_name = {0}".format(plan_name)
         assert(plan_id or plan_name)
         if plan_id:
             plan['id'] = plan_id
@@ -272,7 +267,6 @@ class App(BaseResource):
     def update_feature(self, id_or_name, enabled):
 
         payload = {'enabled': enabled}
-        print payload
         r = self._h._http_resource(
             method='PATCH',
             resource=('apps', self.id, 'features', id_or_name),
@@ -381,7 +375,6 @@ class App(BaseResource):
             if maintenance or maintenance == 0:
                 payload['maintenance'] = maintenance
 
-        print payload
         r = self._h._http_resource(
             method='PATCH',
             resource=('apps', self.id),
@@ -390,7 +383,6 @@ class App(BaseResource):
 
         r.raise_for_status()
         item = self._h._resource_deserialize(r.content.decode("utf-8"))
-        print item
         return App.new_from_dict(item, h=self._h, app=self)
 
     def destroy(self):
@@ -422,7 +414,6 @@ class App(BaseResource):
         if lines:
             payload['lines'] = lines
 
-        print payload
         r = self._h._http_resource(
             method='POST',
             resource=('apps', self.id, 'log-sessions'),
@@ -431,7 +422,6 @@ class App(BaseResource):
 
         r.raise_for_status()
         item = self._h._resource_deserialize(r.content.decode("utf-8"))
-        print item
 
         return LogSession.new_from_dict(item, h=self._h, app=self)
 

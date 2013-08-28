@@ -32,20 +32,14 @@ class Formation(BaseResource):
         return self.update(size=size)
 
     def update(self, size=None, quantity=None):
-        print "size = {0}".format(size)
-        print "quantity = {0}".format(quantity)
 
         assert(size or quantity == 0 or quantity)
         payload = {}
         if size:
             payload['size'] = size
-        #else:
-            #payload['size'] = self.size
 
         if quantity or quantity == 0:
             payload['quantity'] = quantity
-        #else:
-            #payload['quantity'] = self.quantity
 
         r = self._h._http_resource(
             method='PATCH',
@@ -53,6 +47,5 @@ class Formation(BaseResource):
             data=self._h._resource_serialize(payload)
         )
 
-        print r.content.decode("utf-8")
         r.raise_for_status()
         return self._h._process_items(self._h._resource_deserialize(r.content.decode("utf-8")), Formation)

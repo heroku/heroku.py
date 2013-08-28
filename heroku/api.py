@@ -141,15 +141,9 @@ class HerokuCore(object):
             resource = [resource]
 
         url = self._url_for(*resource)
-        print url
-        from pprint import pprint # noqa
-        #pprint(method)
-        #pprint(params)
-        #pprint(data)
 
         headers = self._get_headers_for_request(legacy=legacy, order_by=order_by, limit=limit, valrange=valrange)
 
-        pprint(headers)
         r = self._session.request(method, url, params=params, data=data, headers=headers)
 
         if 'ratelimit-remaining' in r.headers:
@@ -158,10 +152,9 @@ class HerokuCore(object):
         if 'Request-Id' in r.headers:
             self._last_request_id = r.headers['Request-Id']
 
-        if 'Accept-Ranges' in r.headers:
-            print "Accept-Ranges = {0}".format(r.headers['Accept-Ranges'])
+        #if 'Accept-Ranges' in r.headers:
+            #print "Accept-Ranges = {0}".format(r.headers['Accept-Ranges'])
 
-        #print "STATUS_CODE = {0}".format(r.status_code)
         if r.status_code == 422:
             http_error = HTTPError('%s - %s Client Error: %s' %
                                    (self._last_request_id, r.status_code, r.content.decode("utf-8")))
@@ -173,9 +166,10 @@ class HerokuCore(object):
             print r.headers
             raise RateLimitExceeded("You have exceeded your rate limit \n{0}".format(r.content.decode("utf-8")))
 
-        if r.status_code != 200 or r.status_code != 304 or r.status_code != 206:
-            #print r.headers
-            #print r.content.decode("utf-8")
+        if r.status_code not in [200, 304, 206]:
+            print "Status not sensible - {0}".format(r.status_code)
+            print r.headers
+            print r.content.decode("utf-8")
             pass
         r.raise_for_status()
 
@@ -274,7 +268,6 @@ class Heroku(HerokuCore):
             payload['region'] = region
             pass
 
-        print payload
         try:
             r = self._http_resource(
                 method='POST',

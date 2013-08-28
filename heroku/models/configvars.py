@@ -29,7 +29,6 @@ class ConfigVars(object):
 
     def __delitem__(self, key):
         data = self._h._resource_serialize({key: None})
-        print data
         r = self._h._http_resource(
             method='PATCH',
             resource=('apps', self.app.name, 'config-vars'),

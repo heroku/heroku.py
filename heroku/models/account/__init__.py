@@ -56,7 +56,6 @@ class Account(BaseResource):
     def update_feature(self, id_or_name, enabled):
 
         payload = {'enabled': enabled}
-        print payload
         r = self._h._http_resource(
             method='PATCH',
             resource=('account', 'features', id_or_name),
