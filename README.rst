@@ -127,6 +127,10 @@ Get account::
 
     account = heroku_conn.account()
 
+Change Password::
+
+    account.change_password("<current_password>", "<new_password>")
+
 SSH Keys
 ~~~~
 

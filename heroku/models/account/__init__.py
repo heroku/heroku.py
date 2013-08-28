@@ -66,3 +66,12 @@ class Account(BaseResource):
         r.raise_for_status()
         item = self._h._resource_deserialize(r.content.decode("utf-8"))
         return AccountFeature.new_from_dict(item, h=self._h, app=self)
+
+    def change_password(self, current_password, new_password):
+        r = self._h._http_resource(
+            method='PUT',
+            resource=('account', 'password'),
+            data=self._h._resource_serialize({'current_password': current_password, 'new_password': new_password})
+        )
+        r.raise_for_status()
+        return r.ok
