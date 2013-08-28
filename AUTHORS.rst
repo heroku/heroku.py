@@ -6,6 +6,11 @@ Development Lead
 
 - Kenneth Reitz <me@kennethreitz.com>
 
+V3 rewrite
+``````````
+
+- Martin Moss <martyzz1@gmail.com>
+
 
 Patches and Suggestions
 ```````````````````````
