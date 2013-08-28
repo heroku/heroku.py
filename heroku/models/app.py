@@ -207,9 +207,9 @@ class App(BaseResource):
                 dyno.kill()
         return self
 
-    def run_command_detached(self, command, printout=True, size=1):
+    def run_command_detached(self, command, size=1):
         """Run a remote command but do not wait for the command to complete"""
-        return self.run_command(command, attach=False, printout=printout, size=size)
+        return self.run_command(command, attach=False, printout=False, size=size)
 
     def run_command(self, command, attach=True, printout=True, size=1):
         """Run a remote command attach=True if you want to capture the output"""
