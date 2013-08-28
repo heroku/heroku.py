@@ -19,7 +19,7 @@ heroku_conn = heroku.from_key(HEROKU_API_KEY)
 #domain.remove()
 #print newapp.domains()
 
-app = heroku_conn.app('martinsharehoodadmin')
+app = heroku_conn.app('martyzz1test1')
 releases = app.releases()
 for release in releases:
     print "{0} - {1}".format(release.id, release.version)
