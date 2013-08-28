@@ -450,7 +450,8 @@ release information::
 
 Rollbck to a release::
 
-    app.rollback(release.version)
+    app.rollback("v{0}".format(release.version))
+    app.rollback("v108")
 
 Rename App
 ~~~~~~~~~~
