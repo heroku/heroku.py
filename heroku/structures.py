@@ -45,8 +45,10 @@ class KeyedListResource(object):
         try:
             self.get(key)
         except KeyError:
+            print "Got False"
             return False
         else:
+            print "Got True"
             return True
 
     def add(self, *args, **kwargs):
