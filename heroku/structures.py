@@ -40,6 +40,15 @@ class KeyedListResource(object):
 
         return v
 
+    def __contains__(self, key):
+
+        try:
+            self.get(key)
+        except KeyError:
+            return False
+        else:
+            return True
+
     def add(self, *args, **kwargs):
 
         try:
@@ -107,12 +116,7 @@ class FormationListResource(KeyedListResource):
             return super(FormationListResource, self).__getitem__(key)
         except KeyError as why:
 
-            #c = [p for p in self._items if key == p.type]
-            c = None
-            for p in self._items:
-                print "checking key {0} against type {1}".format(key, p.type)
-                if key == p.type:
-                    c = p
+            c = [p for p in self._items if key == p.type]
 
             if c:
                 return FormationTypeListResource(items=c)
