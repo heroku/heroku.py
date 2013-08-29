@@ -20,9 +20,13 @@ heroku_conn = heroku.from_key(HEROKU_API_KEY)
 #print newapp.domains()
 
 app = heroku_conn.app('martinsharehoodadmin')
-releases = app.releases()
-for release in releases:
-    print release
+dynos = app.dynos()
+
+dyno = dynos['web.1']
+print dyno
+#releases = app.releases()
+#for release in releases:
+    #print release
 #releases = app.releases()._items.reverse()
 #print releases.pop()
 #print releases.pop()

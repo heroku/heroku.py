@@ -21,7 +21,7 @@ class Formation(BaseResource):
         super(Formation, self).__init__()
 
     def __repr__(self):
-        return "<formation '{0}-{1}'>".format(self.type, self.command)
+        return "<formation '{0} - {1}'>".format(self.type, self.command)
 
     def scale(self, quantity):
         """Scales the given process to the given number of dynos."""

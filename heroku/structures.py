@@ -107,7 +107,12 @@ class FormationListResource(KeyedListResource):
             return super(FormationListResource, self).__getitem__(key)
         except KeyError as why:
 
-            c = [p for p in self._items if key == p.type]
+            #c = [p for p in self._items if key == p.type]
+            c = None
+            for p in self._items:
+                print "checking key {0} against type {1}".format(key, p.type)
+                if key == p.type:
+                    c = p
 
             if c:
                 return FormationTypeListResource(items=c)
