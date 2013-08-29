@@ -94,8 +94,10 @@ class DynoListResource(KeyedListResource):
             c = [p for p in self._items if key == p.type]
 
             if c:
+                print "Got {0}".format(c)
                 return DynoTypeListResource(items=c)
             else:
+                print "Raising {0}".format(why)
                 raise why
 
 
