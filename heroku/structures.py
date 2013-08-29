@@ -42,13 +42,14 @@ class KeyedListResource(object):
 
     def __contains__(self, key):
 
+        v = None
         try:
-            self.get(key)
+            v = self.get(key)
         except KeyError:
-            print "Got False"
+            print "Got False - {0} - {1}".format(key, v)
             return False
         else:
-            print "Got True"
+            print "Got True - {0} - {1}".format(key, v)
             return True
 
     def add(self, *args, **kwargs):
