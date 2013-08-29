@@ -88,7 +88,7 @@ class DynoListResource(KeyedListResource):
             return super(DynoListResource, self).__getitem__(key)
         except KeyError as why:
 
-            c = [p for p in self._items if key == p.name]
+            c = [p for p in self._items if key == p.type]
 
             if c:
                 return DynoTypeListResource(items=c)
