@@ -86,7 +86,7 @@ class HerokuCore(object):
             return self._api_key_verified
 
     def _verify_api_key(self):
-        r = self._session.get(self._url_for('apps'))
+        r = self._session.get(self._url_for('account/rate-limits'))
 
         self._api_key_verified = True if r.ok else False
 
