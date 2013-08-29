@@ -1,6 +1,6 @@
 from ..models import BaseResource, User
 from ..rendezvous import Rendezvous
-from ..structures import DynoListResource, FormationListResource
+from ..structures import DynoListResource
 
 from .addon import Addon
 from .collaborator import Collaborator
@@ -237,7 +237,7 @@ class App(BaseResource):
         """The formation processes for this app."""
         return self._h._get_resources(
             resource=('apps', self.name, 'formation'),
-            obj=Formation, app=self, map=FormationListResource, **kwargs
+            obj=Formation, app=self, **kwargs
         )
 
     @property

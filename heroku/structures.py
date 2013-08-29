@@ -104,34 +104,6 @@ class DynoTypeListResource(DynoListResource):
         super(DynoTypeListResource, self).__init__(*args, **kwargs)
 
 
-class FormationListResource(KeyedListResource):
-    """KeyedListResource with basic filtering for Formation types."""
-
-    def __init__(self, *args, **kwargs):
-        super(FormationListResource, self).__init__(*args, **kwargs)
-
-    def __getitem__(self, key):
-
-        try:
-            return super(FormationListResource, self).__getitem__(key)
-        except KeyError as why:
-
-            c = [p for p in self._items if key == p.type]
-
-            if c:
-                return FormationTypeListResource(items=c)
-            else:
-                raise why
-
-
-class FormationTypeListResource(FormationListResource):
-    """KeyedListResource with basic filtering for process types."""
-
-    def __init__(self, *args, **kwargs):
-
-        super(FormationTypeListResource, self).__init__(*args, **kwargs)
-
-
 class SSHKeyListResource(KeyedListResource):
     """KeyedListResource with clearing for ssh keys."""
 
