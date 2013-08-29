@@ -46,11 +46,12 @@ class KeyedListResource(object):
         try:
             v = self.get(key)
         except KeyError:
-            print "Got False - {0} - {1}".format(key, v)
             return False
         else:
-            print "Got True - {0} - {1}".format(key, v)
-            return True
+            if v is None:
+                return False
+            else:
+                return True
 
     def add(self, *args, **kwargs):
 
@@ -94,10 +95,8 @@ class DynoListResource(KeyedListResource):
             c = [p for p in self._items if key == p.type]
 
             if c:
-                print "Got {0}".format(c)
                 return DynoTypeListResource(items=c)
             else:
-                print "Raising {0}".format(why)
                 raise why
 
 
