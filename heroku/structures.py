@@ -44,7 +44,7 @@ class KeyedListResource(object):
 
         v = None
         try:
-            v = self.get(key)
+            v = self[key]
         except KeyError:
             return False
         else:
@@ -93,6 +93,8 @@ class DynoListResource(KeyedListResource):
         except KeyError as why:
 
             c = [p for p in self._items if key == p.type]
+
+            print c
 
             if c:
                 return DynoTypeListResource(items=c)
