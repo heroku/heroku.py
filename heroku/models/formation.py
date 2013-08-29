@@ -14,7 +14,7 @@ class Formation(BaseResource):
     _ints = ['quantity', 'size']
     _bools = ['attached']
     _dates = ['created_at', 'updated_at']
-    _pks = ['id']
+    _pks = ['id', 'type']
 
     def __init__(self):
         self.app = None
