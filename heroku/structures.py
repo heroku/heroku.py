@@ -94,8 +94,6 @@ class DynoListResource(KeyedListResource):
 
             c = [p for p in self._items if key == p.type]
 
-            print c
-
             if c:
                 return DynoTypeListResource(items=c)
             else:
