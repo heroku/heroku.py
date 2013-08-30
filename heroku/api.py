@@ -299,10 +299,10 @@ class Heroku(HerokuCore):
     def ratelimit_remaining(self):
 
         if self._ratelimit_remaining is not None:
-            return self._ratelimit_remaining
+            return int(self._ratelimit_remaining)
         else:
             self.rate_limit
-            return self._ratelimit_remaining
+            return int(self._ratelimit_remaining)
 
     @property
     def last_request_id(self):
