@@ -16,7 +16,7 @@ class ConfigVars(object):
         return repr(self.data)
 
     def __getitem__(self, key):
-        return self.get(key)
+        return self.data.get(key)
 
     def __setitem__(self, key, value):
         # API expects JSON.
