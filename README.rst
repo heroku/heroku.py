@@ -18,10 +18,10 @@ First instantiate a heroku_conn as above::
 
 Interact with your applications::
 
-    >>> heroku_conn.apps
+    >>> heroku_conn.apps()
     [<app 'sharp-night-7758'>, <app 'empty-spring-4049'>, ...]
 
-    >>> app = heroku_conn.apps['sharp-night-7758']
+    >>> app = heroku_conn.apps()['sharp-night-7758']
 
 General notes on Debugging
 --------------------------
