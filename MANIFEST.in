@@ -1,1 +1,3 @@
 include README.rst LICENSE HISTORY.rst
+recursive-include heroku *.py
+include data/cacert.pem
