@@ -13,7 +13,7 @@ from .logsession import LogSession
 from .region import Region
 from .release import Release
 
-from pprint import pprint
+from pprint import pprint # NOQA
 import sys
 
 if sys.version_info > (3, 0):
@@ -239,6 +239,34 @@ class App(BaseResource):
             resource=('apps', self.name, 'formation'),
             obj=Formation, app=self, **kwargs
         )
+
+    def scale_formation_process(self, formation_id_or_name, quantity):
+        assert(quantity == 0 or quantity)
+        payload = {}
+        payload['quantity'] = quantity
+
+        r = self._h._http_resource(
+            method='PATCH',
+            resource=('apps', self.id, 'formation', formation_id_or_name),
+            data=self._h._resource_serialize(payload)
+        )
+
+        r.raise_for_status()
+        return self._h._process_items(self._h._resource_deserialize(r.content.decode("utf-8")), Formation)
+
+    def resize_formation_process(self, formation_id_or_name, size):
+        assert(size == 0 or size)
+        payload = {}
+        payload['size'] = size
+
+        r = self._h._http_resource(
+            method='PATCH',
+            resource=('apps', self.id, 'formation', formation_id_or_name),
+            data=self._h._resource_serialize(payload)
+        )
+
+        r.raise_for_status()
+        return self._h._process_items(self._h._resource_deserialize(r.content.decode("utf-8")), Formation)
 
     @property
     def info(self):

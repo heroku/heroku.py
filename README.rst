@@ -377,11 +377,13 @@ Scale your Procfile processes::
 
     app.process_formation()['web'].scale(2) # run 2 dynos
     app.process_formation()['web'].scale(0) # don't run any dynos
+    proc = app.scale_formation_process(<formation_id_or_name>, <quantity>)
         
 Resize your Procfile Processes::
 
     app.process_formation()['web'].resize(2) # for 2X
     app.process_formation()['web'].resize(1) # for 1X
+    proc = app.resize_formation_process(<formation_id_or_name>, <size>)
 
 
 Log Drains
