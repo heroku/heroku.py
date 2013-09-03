@@ -110,14 +110,14 @@ class HerokuCore(object):
         except ValueError:
             raise ResponseError('The API Response was not valid.')
 
-    def _get_headers_for_request(self, legacy=False, order_by=None, limit=None, valrange=None):
+    def _get_headers_for_request(self, method, url, legacy=False, order_by=None, limit=None, valrange=None):
         headers = {}
         if legacy is True:
             #Nasty patch session to fallback to old api
             headers.update({'Accept': 'application/json'})
-            #del self._session.headers['Content-Type']
 
         else:
+            range_str = None
             if order_by or limit or valrange:
                 range_str = ""
                 if order_by:
@@ -130,6 +130,8 @@ class HerokuCore(object):
                 if valrange:
                     #If given, This should override limit and order_by
                     range_str = valrange
+
+            if not range_str == None:
                 headers.update({'Range': range_str})
 
         return headers
@@ -142,7 +144,7 @@ class HerokuCore(object):
 
         url = self._url_for(*resource)
 
-        headers = self._get_headers_for_request(legacy=legacy, order_by=order_by, limit=limit, valrange=valrange)
+        headers = self._get_headers_for_request(method, url, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange)
 
         r = self._session.request(method, url, params=params, data=data, headers=headers)
 
