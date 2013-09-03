@@ -6,6 +6,7 @@ HEROKU_API_KEY = os.environ.get('HEROKU_API_KEY', False)
 TEST_EMAIL = os.environ.get('TEST_EMAIL', False)
 
 heroku_conn = heroku.from_key(HEROKU_API_KEY)
+print heroku_conn.ratelimit_remaining()
 #newapp = heroku_conn.create_app(name='martyzz1test1', stack='cedar', region_name='us')
 #collab = newapp.add_collaborator(email=TEST_EMAIL, silent=1)
 #print newapp.collaborators()
@@ -19,11 +20,11 @@ heroku_conn = heroku.from_key(HEROKU_API_KEY)
 #domain.remove()
 #print newapp.domains()
 
-app = heroku_conn.app('martinsharehoodadmin')
-dynos = app.dynos()
+#app = heroku_conn.app('martyzz1test1')
+#dynos = app.dynos()
 
-dyno = dynos['web.1']
-print dyno
+#dyno = dynos['web.1']
+#print dyno
 #releases = app.releases()
 #for release in releases:
     #print release
@@ -120,4 +121,3 @@ print dyno
 #app.delete()
 
 print heroku_conn._last_request_id
-assert(False)
