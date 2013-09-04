@@ -409,6 +409,7 @@ Log Sessions
 
 Access the logs::
 
+    log = heroku_conn.get_app_log(<app_id_or_name>, dyno='web.1', lines=2, source='app')
     log = app.get_log()
     log = app.get_log(lines=100)
     print app.get_log(dyno='web.1', lines=2, source='app')
@@ -419,6 +420,8 @@ Access the logs::
 You can even stream the tail::
 
     #accepts the same params as above - lines|dyno|source
+    log = heroku_conn.stream_app_log(<app_id_or_name>, lines=1)
+    #or
     for line in app.stream_log(lines=1):
          print line
 

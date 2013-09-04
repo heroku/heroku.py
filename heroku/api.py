@@ -14,6 +14,7 @@ from .models.app import App
 from .models.addon import Addon
 from .models.account import Account
 from .models.key import Key
+from .models.logsession import LogSession
 from .structures import KeyedListResource, SSHKeyListResource
 from .models.account.feature import AccountFeature
 from requests.exceptions import HTTPError
@@ -305,6 +306,41 @@ class Heroku(HerokuCore):
         else:
             self.rate_limit
             return int(self._ratelimit_remaining)
+
+    def stream_app_log(self, app_id_or_name, dyno=None, lines=100, source=None):
+        logger = self._logger(app_id_or_name, dyno=dyno, lines=lines, source=source, tail=True)
+
+        return logger.stream()
+
+    def get_app_log(self, app_id_or_name, dyno=None, lines=100, source=None):
+        logger = self._app_logger(app_id_or_name, dyno=dyno, lines=lines, source=source, tail=0)
+
+        return logger.get()
+
+    def _app_logger(self, app_id_or_name, dyno=None, lines=100, source=None, tail=0):
+        payload = {}
+        if dyno:
+            payload['dyno'] = dyno
+
+        if tail:
+            payload['tail'] = tail
+
+        if source:
+            payload['source'] = source
+
+        if lines:
+            payload['lines'] = lines
+
+        r = self._http_resource(
+            method='POST',
+            resource=('apps', app_id_or_name, 'log-sessions'),
+            data=self._resource_serialize(payload)
+        )
+
+        r.raise_for_status()
+        item = self._resource_deserialize(r.content.decode("utf-8"))
+
+        return LogSession.new_from_dict(item, h=self, app=self)
 
     @property
     def last_request_id(self):
