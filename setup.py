@@ -15,7 +15,7 @@ if sys.argv[-1] == 'publish':
     sys.exit()
 
 required = [
-    'requests>=0.10.0',
+    'requests>=1.2.3',
     'python-dateutil==1.5'
 ]
 
