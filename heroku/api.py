@@ -308,7 +308,7 @@ class Heroku(HerokuCore):
             return int(self._ratelimit_remaining)
 
     def stream_app_log(self, app_id_or_name, dyno=None, lines=100, source=None):
-        logger = self._logger(app_id_or_name, dyno=dyno, lines=lines, source=source, tail=True)
+        logger = self._app_logger(app_id_or_name, dyno=dyno, lines=lines, source=source, tail=True)
 
         return logger.stream()
 
