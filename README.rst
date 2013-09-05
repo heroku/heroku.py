@@ -472,21 +472,44 @@ Rename App::
 Customized Sessions
 -------------------
 
-Heroku.py is powered by `Requests <http://python-requests.org>`_ and supports all customized sessions:
+Heroku.py is powered by `Requests <http://python-requests.org>`_ and supports all `customized sessions <http://www.python-requests.org/en/latest/user/advanced/#session-objects>`_:
 
-For example advanced logging for easier debugging::
+Logging
+-------
 
-    >>> import sys
-    >>> import requests
-    >>> from heroku.api import Heroku
+Note: logging is now achieved by the following method::
 
-    >>> my_config = {'verbose': sys.stderr}
-    >>> session = requests.session(config=my_config)
-    >>> cloud = Heroku(session=session)
-    >>> cloud.authenticate(cloud.request_key('kenneth@heroku.com', 'xxxxxxx'))
-    >>> cloud.apps
-    2011-12-21T22:53:47+00:00   GET   https://api.heroku.com/apps
-    [<app 'myapp'>]
+
+    import httplib
+    httplib.HTTPConnection.debuglevel = 1
+
+    logging.basicConfig() # you need to initialize logging, otherwise you will not see anything from requests
+    logging.getLogger().setLevel(logging.INFO)
+    requests_log = logging.getLogger("requests.packages.urllib3")
+    requests_log.setLevel(logging.INFO)
+    requests_log.propagate = True
+    
+    heroku_conn.ratelimit_remaining()
+
+    >>>INFO:requests.packages.urllib3.connectionpool:Starting new HTTPS connection (1): api.heroku.com
+    >>>send: 'GET /account/rate-limits HTTP/1.1\r\nHost: api.heroku.com\r\nAuthorization: Basic ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ=\r\nContent-Type: application/json\r\nAccept-Encoding: gzip, deflate, compress\r\nAccept: application/vnd.heroku+json; version=3\r\nUser-Agent: python-requests/1.2.3 CPython/2.7.2 Darwin/12.4.0\r\n\r\n'
+    >>>reply: 'HTTP/1.1 200 OK\r\n'
+    >>>header: Content-Encoding: gzip
+    >>>header: Content-Type: application/json;charset=utf-8
+    >>>header: Date: Thu, 05 Sep 2013 11:13:03 GMT
+    >>>header: Oauth-Scope: global
+    >>>header: Oauth-Scope-Accepted: global identity
+    >>>header: RateLimit-Remaining: 2400
+    >>>header: Request-Id: ZZZZZZ2a-b704-4bbc-bdf1-e4bc263586cb
+    >>>header: Server: nginx/1.2.8
+    >>>header: Status: 200 OK
+    >>>header: Strict-Transport-Security: max-age=31536000
+    >>>header: Vary: Accept-Encoding
+    >>>header: X-Content-Type-Options: nosniff
+    >>>header: X-Runtime: 0.032193391
+    >>>header: Content-Length: 44
+    >>>header: Connection: keep-alive
+
 
 
 Installation
