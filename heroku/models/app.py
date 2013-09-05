@@ -417,15 +417,15 @@ class App(BaseResource):
         """Destoys the app. Do be careful."""
         return self.delete()
 
-    def stream_log(self, dyno=None, lines=100, source=None):
+    def stream_log(self, dyno=None, lines=100, source=None, timeout=False):
         logger = self._logger(dyno=dyno, lines=lines, source=source, tail=True)
 
-        return logger.stream()
+        return logger.stream(timeout=timeout)
 
-    def get_log(self, dyno=None, lines=100, source=None):
+    def get_log(self, dyno=None, lines=100, source=None, timeout=False):
         logger = self._logger(dyno=dyno, lines=lines, source=source, tail=0)
 
-        return logger.get()
+        return logger.get(timeout=timeout)
 
     def _logger(self, dyno=None, lines=100, source=None, tail=0):
 

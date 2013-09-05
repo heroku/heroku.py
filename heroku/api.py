@@ -307,15 +307,15 @@ class Heroku(HerokuCore):
             self.rate_limit
             return int(self._ratelimit_remaining)
 
-    def stream_app_log(self, app_id_or_name, dyno=None, lines=100, source=None):
+    def stream_app_log(self, app_id_or_name, dyno=None, lines=100, source=None, timeout=False):
         logger = self._app_logger(app_id_or_name, dyno=dyno, lines=lines, source=source, tail=True)
 
-        return logger.stream()
+        return logger.stream(timeout=timeout)
 
-    def get_app_log(self, app_id_or_name, dyno=None, lines=100, source=None):
+    def get_app_log(self, app_id_or_name, dyno=None, lines=100, source=None, timeout=False):
         logger = self._app_logger(app_id_or_name, dyno=dyno, lines=lines, source=source, tail=0)
 
-        return logger.get()
+        return logger.get(timeout=timeout)
 
     def _app_logger(self, app_id_or_name, dyno=None, lines=100, source=None, tail=0):
         payload = {}
