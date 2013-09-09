@@ -67,11 +67,13 @@ print heroku_conn.ratelimit_remaining()
 #print logs
 
 #print app.domains(limit=1)
-#print app.domains(valrange='domain ]martinsharehoodadmin.herokuapp.com..; max=1')
 #dyno = app.run_command_detached('fab -l')
 #dyno = app.run_command('fab -l', printout=True)
 #dyno.remove()
-#print heroku_conn.apps()['martinsharehoodadmin'].process_formation()['web']
+proc = heroku_conn.apps()['testmartyzz1'].process_formation()['web']
+print proc.size
+print proc.quantity
+
 #formations = app.process_formation()
 #print formations['web']
 #for formation in formations:
