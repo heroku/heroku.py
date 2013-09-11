@@ -7,7 +7,7 @@ class Release(BaseResource):
     _dates = ['created_at', 'updated_at']
     _map = {'user': User}
     _pks = ['id', 'version']
-    order_by = 'seq'
+    order_by = 'version'
 
     def __init__(self):
         self.app = None

@@ -3,6 +3,7 @@ import heroku
 from pprint import pprint# noqa
 
 HEROKU_API_KEY = os.environ.get('HEROKU_API_KEY', False)
+HEROKU_APPNAME = os.environ.get('HEROKU_APPNAME', False)
 TEST_EMAIL = os.environ.get('TEST_EMAIL', False)
 
 heroku_conn = heroku.from_key(HEROKU_API_KEY)
@@ -20,14 +21,14 @@ print heroku_conn.ratelimit_remaining()
 #domain.remove()
 #print newapp.domains()
 
-#app = heroku_conn.app('martyzz1test1')
+app = heroku_conn.app(HEROKU_APPNAME)
 #dynos = app.dynos()
 
 #dyno = dynos['web.1']
 #print dyno
-#releases = app.releases()
-#for release in releases:
-    #print release
+releases = app.releases(sort='asc')
+for release in releases:
+    print release
 #releases = app.releases()._items.reverse()
 #print releases.pop()
 #print releases.pop()
@@ -70,9 +71,9 @@ print heroku_conn.ratelimit_remaining()
 #dyno = app.run_command_detached('fab -l')
 #dyno = app.run_command('fab -l', printout=True)
 #dyno.remove()
-proc = heroku_conn.apps()['testmartyzz1'].process_formation()['web']
-print proc.size
-print proc.quantity
+#proc = heroku_conn.apps()['testmartyzz1'].process_formation()['web']
+#print proc.size
+#print proc.quantity
 
 #formations = app.process_formation()
 #print formations['web']

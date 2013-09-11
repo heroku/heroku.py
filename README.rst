@@ -54,9 +54,10 @@ Throughout the docs you'll see references to using limit & order_by. Wherever yo
 
 You can control ordering, limits and pagination by supplying the following keywords::
 
-    order_by=<'id'|'seq'>  
+    order_by=<'id'|'version'>  
     limit=<num>
     valrange=<string> - See api docs for this, This value is passed straight through to the API call *as is*.
+    sort=<'asc'|'desc'>
 
 **You'll have to investigate the api for each object's *Accept-Ranges* header to work out which fields can be ordered by**
 
@@ -67,10 +68,10 @@ List all apps in name order::
 
     heroku_conn.apps(order_by='name')
 
-List the first 10 releases::
+List the last 10 releases::
 
-    app.releases(order_by='seq', limit=10)
-    heroku_conn.apps()['empty-spring-4049'].releases(order_by='seq', limit=10)
+    app.releases(order_by='version', limit=10, sort='desc')
+    heroku_conn.apps()['empty-spring-4049'].releases(order_by='version', limit=10, sort='desc')
 
 
 List objects can be referred to directly by *any* of their primary keys too::
@@ -450,7 +451,7 @@ Release
 List all releases::
 
     releaselist = app.releases()
-    releaselist = app.releases(order_by='seq')
+    releaselist = app.releases(order_by='version')
 
 release information::
 

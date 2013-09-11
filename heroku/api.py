@@ -111,7 +111,7 @@ class HerokuCore(object):
         except ValueError:
             raise ResponseError('The API Response was not valid.')
 
-    def _get_headers_for_request(self, method, url, legacy=False, order_by=None, limit=None, valrange=None):
+    def _get_headers_for_request(self, method, url, legacy=False, order_by=None, limit=None, valrange=None, sort=None):
         headers = {}
         if legacy is True:
             #Nasty patch session to fallback to old api
@@ -119,7 +119,7 @@ class HerokuCore(object):
 
         else:
             range_str = None
-            if order_by or limit or valrange:
+            if order_by or limit or valrange or sort:
                 range_str = ""
                 if order_by:
                     range_str = "{0} ..".format(order_by)
@@ -127,6 +127,9 @@ class HerokuCore(object):
                     if limit > 1000:
                         raise MaxRangeExceeded("Your *limit* ({0}) argument is greater than the maximum allowed value of 1000".format(limit))
                     range_str += "; max={0}".format(limit)
+                if not sort is None:
+                    assert(sort == 'asc' or sort == 'desc')
+                    range_str += "; order={0}".format(sort)
 
                 if valrange:
                     #If given, This should override limit and order_by
@@ -137,7 +140,7 @@ class HerokuCore(object):
 
         return headers
 
-    def _http_resource(self, method, resource, params=None, data=None, legacy=False, order_by=None, limit=None, valrange=None):
+    def _http_resource(self, method, resource, params=None, data=None, legacy=False, order_by=None, limit=None, valrange=None, sort=None):
         """Makes an HTTP request."""
 
         if not is_collection(resource):
@@ -145,7 +148,7 @@ class HerokuCore(object):
 
         url = self._url_for(*resource)
 
-        headers = self._get_headers_for_request(method, url, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange)
+        headers = self._get_headers_for_request(method, url, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange, sort=sort)
 
         r = self._session.request(method, url, params=params, data=data, headers=headers)
 
@@ -188,23 +191,23 @@ class HerokuCore(object):
 
         return obj.new_from_dict(item, h=self, **kwargs)
 
-    def _get_resources(self, resource, obj, params=None, map=None, legacy=None, order_by=None, limit=None, valrange=None, **kwargs):
+    def _get_resources(self, resource, obj, params=None, map=None, legacy=None, order_by=None, limit=None, valrange=None, sort=None, **kwargs):
         """Returns a list of mapped objects from an HTTP resource."""
         if not order_by:
             order_by = obj.order_by
 
-        return self._process_items(self._get_data(resource, params=params, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange), obj, map=map, **kwargs)
+        return self._process_items(self._get_data(resource, params=params, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange, sort=sort), obj, map=map, **kwargs)
 
-    def _get_data(self, resource, params=None, legacy=None, order_by=None, limit=None, valrange=None):
+    def _get_data(self, resource, params=None, legacy=None, order_by=None, limit=None, valrange=None, sort=None):
 
-        r = self._http_resource('GET', resource, params=params, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange)
+        r = self._http_resource('GET', resource, params=params, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange, sort=sort)
 
         items = self._resource_deserialize(r.content.decode("utf-8"))
         if r.status_code == 206 and 'Next-Range' in r.headers and not limit:
             #We have unexpected chunked response - deal with it
             valrange = r.headers['Next-Range']
             print "Warning Response was chunked, Loading the next Chunk using the following next-range header returned by Heroku '{0}'. WARNING - This breaks randomly depending on your order_by name. I think it's only guarenteed to work with id's - Looks to be a Heroku problem".format(valrange)
-            new_items = self._get_data(resource, params=params, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange)
+            new_items = self._get_data(resource, params=params, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange, sort=sort)
             items.extend(new_items)
 
         return items
