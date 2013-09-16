@@ -18,6 +18,7 @@ from .models.logsession import LogSession
 from .structures import KeyedListResource, SSHKeyListResource
 from .models.account.feature import AccountFeature
 from requests.exceptions import HTTPError
+from pprint import pprint # noqa
 import requests
 import sys
 
@@ -239,8 +240,8 @@ class Heroku(HerokuCore):
     def account(self):
         return self._get_resource(('account'), Account)
 
-    def addons(self, **kwargs):
-        return self._get_resources(('addons'), Addon, **kwargs)
+    def addons(self, app_id_or_name, **kwargs):
+        return self._get_resources(resource=('apps', app_id_or_name, 'addons'), obj=Addon, **kwargs)
 
     def addon_services(self, id_or_name=None, **kwargs):
         if id_or_name is not None:

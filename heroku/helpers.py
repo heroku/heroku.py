@@ -16,6 +16,7 @@ import sys
 if sys.version_info > (3, 0):
     basestring = (str, bytes)
 
+
 def is_collection(obj):
     """Tests if an object is a collection."""
 
@@ -26,7 +27,6 @@ def is_collection(obj):
         val = False
 
     return val
-
 
 
 # from kennethreitz/python-github3

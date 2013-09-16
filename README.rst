@@ -202,6 +202,7 @@ List all Addons::
 
     addonlist = app.addons(order_by='id')
     addonlist = applist[<id_or_name>].addons(limit=10)
+    addonlist = heroku_conn.addons(<app_id_or_name>)
 
 Install an Addon::
 

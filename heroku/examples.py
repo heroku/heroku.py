@@ -8,6 +8,7 @@ TEST_EMAIL = os.environ.get('TEST_EMAIL', False)
 
 heroku_conn = heroku.from_key(HEROKU_API_KEY)
 print heroku_conn.ratelimit_remaining()
+
 #newapp = heroku_conn.create_app(name='testy123app', stack='cedar', region_name='us')
 #collab = newapp.add_collaborator(email=TEST_EMAIL, silent=1)
 #print newapp.collaborators()
@@ -21,14 +22,15 @@ print heroku_conn.ratelimit_remaining()
 #domain.remove()
 #print newapp.domains()
 
-app = heroku_conn.app(HEROKU_APPNAME)
+#app = heroku_conn.app(HEROKU_APPNAME)
+#pprint(app.addons())
 #dynos = app.dynos()
 
 #dyno = dynos['web.1']
 #print dyno
-releases = app.releases(sort='asc')
-for release in releases:
-    print release
+#releases = app.releases(sort='asc')
+#for release in releases:
+    #print release
 #releases = app.releases()._items.reverse()
 #print releases.pop()
 #print releases.pop()

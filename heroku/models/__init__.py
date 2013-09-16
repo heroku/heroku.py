@@ -10,7 +10,7 @@ This module contains the models that comprise the Heroku API.
 from ..helpers import to_python
 #from .structures import DynoListResource#, filtered_key_list_resource_factory
 #from .rendezvous import Rendezvous
-#from pprint import pprint
+from pprint import pprint # noqa
 import sys
 
 if sys.version_info > (3, 0):
@@ -113,7 +113,7 @@ class Plan(BaseResource):
 
     _strs = ['id', 'name', 'description', 'state']
     _pks = ['name', 'id']
-    _map = {'price', Price}
+    _map = {'price': Price}
     _dates = ['created_at', 'updated_at']
 
     def __repr__(self):
