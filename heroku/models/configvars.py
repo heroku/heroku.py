@@ -50,10 +50,9 @@ class ConfigVars(object):
             data=payload
         )
 
-        for key, val in newconf.iteritems():
-            self.data[key] = val
-
-        return r.ok
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return ConfigVars.new_from_dict(item, h=self)
 
     def to_dict(self):
         return self.data

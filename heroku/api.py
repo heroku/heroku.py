@@ -14,6 +14,7 @@ from .models.app import App
 from .models.addon import Addon
 from .models.account import Account
 from .models.key import Key
+from .models.configvars import ConfigVars
 from .models.logsession import LogSession
 from .structures import KeyedListResource, SSHKeyListResource
 from .models.account.feature import AccountFeature
@@ -312,16 +313,16 @@ class Heroku(HerokuCore):
         return logger.get(timeout=timeout)
 
     def update_appconfig(self, app_id_or_name, config):
-        payload = self._h._resource_serialize(config)
-        r = self._h._http_resource(
+        payload = self._resource_serialize(config)
+        r = self._http_resource(
             method='PATCH',
             resource=('apps', app_id_or_name, 'config-vars'),
             data=payload
         )
 
         r.raise_for_status()
-        item = self._h._resource_deserialize(r.content.decode("utf-8"))
-        return ConfigVar.new_from_dict(item, h=self._h)
+        item = self._resource_deserialize(r.content.decode("utf-8"))
+        return ConfigVars.new_from_dict(item, h=self)
 
     def _app_logger(self, app_id_or_name, dyno=None, lines=100, source=None, tail=0):
         payload = {}

@@ -10,7 +10,6 @@ TEST_EMAIL = os.environ.get('TEST_EMAIL', False)
 heroku_conn = heroku.from_key(HEROKU_API_KEY)
 print heroku_conn.ratelimit_remaining()
 
-print heroku_conn.account()
 app = heroku_conn.create_app(name='testy123app', stack='cedar', region_name='us')
 #print app.addons()
 #app.install_addon(plan_name='heroku-postgresql:dev')
@@ -19,23 +18,23 @@ config = app.config()
 #for addon in app.addons():
     #addon.delete()
 
-print config
-
-config['TEST1'] = u'MM1'
-print config
-del config['TEST1']
-del config['TEST2']
-del config['TEST3']
-print config
-config2 = app.config()
-print config2
-config['TEST1'] = u'MM1'
-config['TEST2'] = u'MM2'
-config['TEST3'] = u'MM3'
-config.update({u'TEST1': u'A1', u'TEST4': u'A4'})
-print config
-config2 = app.config()
-print config2
+#del config['TEST1']
+#del config['TEST2']
+#del config['TEST3']
+#del config['Z01']
+#del config['Z02']
+#print config
+#config['TEST1'] = u'MM1'
+#config['TEST2'] = u'MM2'
+#config['TEST3'] = u'MM3'
+#config2 = heroku_conn.update_appconfig('testy123app', {u'Z01': u'A1', u'Z02': u'A2'})
+#config2 = config.update({u'Z01': u'A1', u'Z02': u'A2'})
+#config3 = app.config()
+#print config
+#print "======"
+#print config2
+#print "======"
+#print config3
 #print config['TEST1']
 #print config['TEST3']
 
