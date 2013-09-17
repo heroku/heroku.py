@@ -301,6 +301,10 @@ Remove a config Variable::
     del config['Existing_var']
     config['Existing_var'] = None
 
+Update Multiple config Variables::
+
+    config.update({u'TEST1': u'A1', u'TEST2': u'A2', u'TEST3': u'A3'})
+
 Domains
 ~~~~~~~
 

@@ -1,3 +1,4 @@
+# coding=utf-8
 import os
 import heroku
 from pprint import pprint# noqa
@@ -9,7 +10,34 @@ TEST_EMAIL = os.environ.get('TEST_EMAIL', False)
 heroku_conn = heroku.from_key(HEROKU_API_KEY)
 print heroku_conn.ratelimit_remaining()
 
-#newapp = heroku_conn.create_app(name='testy123app', stack='cedar', region_name='us')
+app = heroku_conn.create_app(name='testy123app', stack='cedar', region_name='us')
+#print app.addons()
+#app.install_addon(plan_name='heroku-postgresql:dev')
+config = app.config()
+
+#for addon in app.addons():
+    #addon.delete()
+
+print config
+
+config['TEST1'] = u'MM1'
+print config
+del config['TEST1']
+del config['TEST2']
+del config['TEST3']
+print config
+config2 = app.config()
+print config2
+config['TEST1'] = u'MM1'
+config['TEST2'] = u'MM2'
+config['TEST3'] = u'MM3'
+config.update({u'TEST1': u'A1', u'TEST4': u'A4'})
+print config
+config2 = app.config()
+print config2
+#print config['TEST1']
+#print config['TEST3']
+
 #collab = newapp.add_collaborator(email=TEST_EMAIL, silent=1)
 #print newapp.collaborators()
 #config = newapp.config()
@@ -110,7 +138,6 @@ print heroku_conn.ratelimit_remaining()
 #pg_addon = heroku_conn.addon_services(id_or_name='heroku-postgresql')
 #pprint(pg_addon)
 
-#app.install_addon(plan_name='heroku-postgresql:dev')
 
 #for addon in app.addons:
     #print addon.app.name, " - ", addon.plan.name, " - ", addon.id

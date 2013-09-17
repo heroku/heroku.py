@@ -28,6 +28,7 @@ class ConfigVars(object):
             data=payload
         )
 
+        self.data[key] = value
         return r.ok
 
     def __delitem__(self, key):
@@ -37,6 +38,20 @@ class ConfigVars(object):
             resource=('apps', self.app.name, 'config-vars'),
             data=data
         )
+
+        del self.data[key]
+        return r.ok
+
+    def update(self, newconf):
+        payload = self._h._resource_serialize(newconf)
+        r = self._h._http_resource(
+            method='PATCH',
+            resource=('apps', self.app.name, 'config-vars'),
+            data=payload
+        )
+
+        for key, val in newconf.iteritems():
+            self.data[key] = val
 
         return r.ok
 
