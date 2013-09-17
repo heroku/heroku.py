@@ -74,6 +74,10 @@ class BaseResource(object):
 
         return d
 
+    def change_connection(self, h):
+        self._h = h
+        return self
+
     @classmethod
     def new_from_dict(cls, d, h=None, **kwargs):
 

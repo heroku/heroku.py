@@ -79,6 +79,12 @@ class KeyedListResource(object):
     def append(self, items):
         self._items.append(items)
 
+    def change_connection(self, h):
+        for item in self._items:
+            item.change_connection(h)
+
+        return self
+
 
 class DynoListResource(KeyedListResource):
     """KeyedListResource with basic filtering for process types."""

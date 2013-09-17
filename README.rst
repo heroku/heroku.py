@@ -50,7 +50,7 @@ The new heroku API gives greater control over the interaction of the returned da
 centres around calls to the api which result in list objects being returned. 
 e.g. multiple objects like apps, addons, releases etc.
 
-Throughout the docs you'll see references to using limit & order_by. Wherever you see these, you *should* be able to use *limit*, *order_by* and *valrange*.
+Throughout the docs you'll see references to using limit & order_by. Wherever you see these, you *should* be able to use *limit*, *order_by*, *sort* and *valrange*.
 
 You can control ordering, limits and pagination by supplying the following keywords::
 
@@ -111,6 +111,22 @@ e.g.
 
     >>>print feature.updated_at
     2012-01-01T12:00:00Z
+
+Switching Accounts Mid Flow
+---------------------------
+
+It is also possible to change the underlying heroku_connection at any point on any object or listobject by creating a new heroku_conn and calling change_connection::
+    
+    heroku_conn1 = heroku.from_key('YOUR_API_KEY')
+    heroku_conn2 = heroku.from_key('ANOTHER_API_KEY')
+    app = heroku_conn1.apps()['MYAPP']
+    app.change_connection(heroku_conn2) 
+    app.config() # this call will use heroku_conn2
+    ## or on list objects
+    apps = heroku_conn1.apps()
+    apps.change_connection(heroku_conn2)
+    for app in apps:
+        config = app.config()
 
 Legacy API Calls
 ================
