@@ -12,8 +12,6 @@ Introduction
 First instantiate a heroku_conn as above::
     
     import heroku
-    heroku_conn = heroku.from_pass('kenneth@heroku.com', 'xxxxxxx')
-    # or
     heroku_conn = heroku.from_key('YOUR_API_KEY')
 
 Interact with your applications::
@@ -320,6 +318,10 @@ Remove a config Variable::
 Update Multiple config Variables::
 
     config.update({u'TEST1': u'A1', u'TEST2': u'A2', u'TEST3': u'A3'})
+
+Get dict of config vars::
+
+    my_dict = config.to_dict()
 
 Domains
 ~~~~~~~

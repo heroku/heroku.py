@@ -70,16 +70,6 @@ class HerokuCore(object):
 
         return self._verify_api_key()
 
-    def request_key(self, username, password):
-        r = self._http_resource(
-            method='POST',
-            resource=('login'),
-            data={'username': username, 'password': password}
-        )
-        r.raise_for_status()
-
-        return json.loads(r.content.decode("utf-8")).get('api_key')
-
     @property
     def is_authenticated(self):
         if self._api_key_verified is None:
