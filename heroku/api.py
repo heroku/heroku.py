@@ -311,6 +311,18 @@ class Heroku(HerokuCore):
 
         return logger.get(timeout=timeout)
 
+    def update_appconfig(self, app_id_or_name, config):
+        payload = self._h._resource_serialize(config)
+        r = self._h._http_resource(
+            method='PATCH',
+            resource=('apps', app_id_or_name, 'config-vars'),
+            data=payload
+        )
+
+        r.raise_for_status()
+        item = self._h._resource_deserialize(r.content.decode("utf-8"))
+        return ConfigVar.new_from_dict(item, h=self._h)
+
     def _app_logger(self, app_id_or_name, dyno=None, lines=100, source=None, tail=0):
         payload = {}
         if dyno:
