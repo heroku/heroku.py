@@ -1,14 +1,24 @@
 # coding=utf-8
 import os
 import heroku
+import logging
 from pprint import pprint# noqa
+
+import httplib
+httplib.HTTPConnection.debuglevel = 1
+logging.basicConfig() # you need to initialize logging, otherwise you will not see anything from requests
+logging.getLogger().setLevel(logging.INFO)
+requests_log = logging.getLogger("requests.packages.urllib3")
+requests_log.setLevel(logging.INFO)
+requests_log.propagate = True
 
 HEROKU_API_KEY = os.environ.get('HEROKU_API_KEY', False)
 HEROKU_APPNAME = os.environ.get('HEROKU_APPNAME', False)
 TEST_EMAIL = os.environ.get('TEST_EMAIL', False)
 
+
 heroku_conn = heroku.from_key(HEROKU_API_KEY)
-print heroku_conn.ratelimit_remaining()
+print heroku_conn.account()
 
 #app = heroku_conn.create_app(name='testy123app', stack='cedar', region_name='us')
 #print app.addons()
@@ -39,8 +49,8 @@ print heroku_conn.ratelimit_remaining()
 #print config['TEST1']
 #print config['TEST3']
 
-app = heroku_conn.app('testyzz123')
-output = app.run_command('pgbackups:url')
+#app = heroku_conn.app('testyzz123')
+#output = app.run_command('pgbackups:url')
 #collab = app.add_collaborator(email=TEST_EMAIL, silent=False)
 #print newapp.collaborators()
 #config = newapp.config()
