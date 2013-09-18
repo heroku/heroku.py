@@ -7,7 +7,7 @@ import sys
 try:
     from setuptools import setup
 except ImportError:
-    from distutils.core import setup
+    from distutils.core import setup # NOQA
 
 
 if sys.argv[-1] == 'publish':
@@ -22,7 +22,7 @@ required = [
 
 setup(
     name='heroku',
-    version='3.0.0',
+    version='3.0.1',
     description='Heroku API Wrapper.',
     long_description=open('README.rst').read() + '\n\n' +
                      open('HISTORY.rst').read(),
@@ -30,7 +30,7 @@ setup(
     author_email='kenneth@heroku.com',
     url='https://github.com/heroku/heroku.py',
     packages=['heroku'],
-    package_data={'': ['LICENSE',]},
+    package_data={'': ['LICENSE', ]},
     include_package_data=True,
     install_requires=required,
     license='MIT',
