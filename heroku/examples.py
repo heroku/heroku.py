@@ -13,7 +13,7 @@ print heroku_conn.ratelimit_remaining()
 app = heroku_conn.create_app(name='testy123app', stack='cedar', region_name='us')
 print app.addons()
 print heroku_conn.addons('testy123app')
-#app.install_addon(plan_name='heroku-postgresql:dev')
+app.install_addon(plan_name='heroku-postgresql:dev')
 config = app.config()
 
 #for addon in app.addons():

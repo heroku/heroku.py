@@ -274,14 +274,17 @@ class Heroku(HerokuCore):
                 resource=('apps',),
                 data=self._resource_serialize(payload)
             )
-            name = json.loads(r.content).get('name')
+            r.raise_for_status()
+            item = self._resource_deserialize(r.content.decode("utf-8"))
+            app = App.new_from_dict(item, h=self)
         except HTTPError as e:
             if "Name is already taken" in str(e):
                 print "Warning - {0:s}".format(e)
+                app = self.app(name)
                 pass
             else:
                 raise e
-        return self.app(name)
+        return app
 
     def keys(self, **kwargs):
         return self._get_resources(('user', 'keys'), Key, map=SSHKeyListResource, **kwargs)
