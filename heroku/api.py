@@ -144,6 +144,8 @@ class HerokuCore(object):
 
         headers = self._get_headers_for_request(method, url, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange, sort=sort)
 
+        print url
+        print headers
         r = self._session.request(method, url, params=params, data=data, headers=headers)
 
         if 'ratelimit-remaining' in r.headers:
