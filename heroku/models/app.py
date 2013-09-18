@@ -161,13 +161,12 @@ class App(BaseResource):
         r = self._h._http_resource(
             method='PATCH',
             resource=('apps', self.id, 'config-vars'),
-            app=self,
             data=payload
         )
 
         r.raise_for_status()
         item = self._h._resource_deserialize(r.content.decode("utf-8"))
-        return ConfigVars.new_from_dict(item, h=self)
+        return ConfigVars.new_from_dict(item, h=self._h, app=self)
 
     def domains(self, **kwargs):
         """The domains for this app."""
