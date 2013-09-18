@@ -295,11 +295,14 @@ class Heroku(HerokuCore):
     def features(self, **kwargs):
         return self._get_resources(('account/features'), AccountFeature, **kwargs)
 
-    def run_command_on_app(self, appname, command, size=1, attach=True, printout=True):
+    def run_command_on_app(self, appname, command, size=1, attach=True, printout=True, env=None):
         """Run a remote command attach=True if you want to capture the output"""
         if attach:
             attach = True
         payload = {'command': command, 'attach': attach, 'size': size}
+
+        if env:
+            payload['env'] = env
 
         r = self._http_resource(
             method='POST',

@@ -379,15 +379,16 @@ Restart all your app's Formation configured Dyno's::
 
 Run a command without attaching to it. e.g. start a command and return the dyno object representing the command::
 
-    dyno = app.run_command_detached('fab -l', size=1)
-    dyno = heroku_conn.run_command_on_app(<appname>, <command>, size=1, attach=False, printout=True)
+    dyno = app.run_command_detached('fab -l', size=1, env={'key': 'val'})
+    dyno = heroku_conn.run_command_on_app(<appname>, <command>, size=1, attach=False, printout=True, env={'key': 'val'})
 
 Run a command and attach to it, returning the commands output as a string::
 
     #printout  is used to control if the task should also print to STDOUT - useful for long running processes
     #size = is the processes dyno size 1X(default), 2X, 3X etc...
-    output, dyno = heroku_conn.run_command_on_app(<appname>, <command>, size=1, attach=True, printout=True)
-    output = app.run_command('fab -l', size=1, printout=True)
+    #env = Envrionment variables for the dyno
+    output, dyno = heroku_conn.run_command_on_app(<appname>, <command>, size=1, attach=True, printout=True, env={'key': 'val'})
+    output = app.run_command('fab -l', size=1, printout=True, env={'key': 'val'})
     print output
 
 Formations
