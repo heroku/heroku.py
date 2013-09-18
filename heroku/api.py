@@ -12,10 +12,12 @@ from .helpers import is_collection
 from .models import Plan, RateLimit
 from .models.app import App
 from .models.addon import Addon
+from .models.dyno import Dyno
 from .models.account import Account
 from .models.key import Key
 from .models.configvars import ConfigVars
 from .models.logsession import LogSession
+from .rendezvous import Rendezvous
 from .structures import KeyedListResource, SSHKeyListResource
 from .models.account.feature import AccountFeature
 from requests.exceptions import HTTPError
@@ -289,6 +291,28 @@ class Heroku(HerokuCore):
 
     def features(self, **kwargs):
         return self._get_resources(('account/features'), AccountFeature, **kwargs)
+
+    def run_command_on_app(self, appname, command, size=1, attach=True, printout=True):
+        """Run a remote command attach=True if you want to capture the output"""
+        if attach:
+            attach = True
+        payload = {'command': command, 'attach': attach, 'size': size}
+
+        r = self._http_resource(
+            method='POST',
+            resource=('apps', appname, 'dynos'),
+            data=self._resource_serialize(payload)
+        )
+
+        r.raise_for_status()
+        item = self._resource_deserialize(r.content.decode("utf-8"))
+        dyno = Dyno.new_from_dict(item, h=self)
+
+        if attach:
+            output = Rendezvous(dyno.attach_url, printout).start()
+            return output, dyno
+        else:
+            return dyno
 
     @property
     def rate_limit(self):
