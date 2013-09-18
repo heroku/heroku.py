@@ -39,7 +39,7 @@ config = app.config()
 #print config['TEST1']
 #print config['TEST3']
 
-#collab = newapp.add_collaborator(email=TEST_EMAIL, silent=1)
+collab = app.add_collaborator(email=TEST_EMAIL, silent=False)
 #print newapp.collaborators()
 #config = newapp.config()
 #config['TEST2'] = None

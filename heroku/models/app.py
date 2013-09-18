@@ -58,7 +58,7 @@ class App(BaseResource):
         r.raise_for_status()
         return r.ok
 
-    def add_collaborator(self, email=None, id=None, silent=0):
+    def add_collaborator(self, email=None, id=None, silent=False):
         """
         Adds a collaborator to your app
         must specify
@@ -78,7 +78,8 @@ class App(BaseResource):
         if silent:
             silent = True
 
-        payload['silent'] = silent
+        #commented out until api is fixed
+        #payload['silent'] = silent
         payload['user'] = user
 
         r = self._h._http_resource(
