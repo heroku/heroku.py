@@ -323,6 +323,11 @@ Update Multiple config Variables::
     newconfig = heroku_conn.update_appconfig(<app_id_or_name>, {u'TEST1': u'A1', u'TEST2': u'A2', u'TEST3': u'A3'})
     newconfig = app.update_config({u'TEST1': u'A1', u'TEST2': u'A2', u'TEST3': u'A3'})
 
+Check if a var exists::
+
+    if 'KEY' in config:
+        print "KEY = {0}".format(config[KEY])
+
 Get dict of config vars::
 
     my_dict = config.to_dict()
