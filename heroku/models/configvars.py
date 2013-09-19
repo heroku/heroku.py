@@ -15,6 +15,18 @@ class ConfigVars(object):
     def __repr__(self):
         return repr(self.data)
 
+    def __contains__(self, key):
+        v = None
+        try:
+            v = self[key]
+        except KeyError:
+            return False
+        else:
+            if v is None:
+                return False
+            else:
+                return True
+
     def __getitem__(self, key):
         return self.data.get(key)
 

@@ -18,12 +18,11 @@ TEST_EMAIL = os.environ.get('TEST_EMAIL', False)
 
 
 heroku_conn = heroku.from_key(HEROKU_API_KEY)
+apps = heroku_conn.apps()
 #app = heroku_conn.create_app(name='testy123app', stack='cedar', region_name='us')
 #print app.addons()
 #print heroku_conn.addons('testy123app')
 #app.install_addon(plan_name='heroku-postgresql:dev')
-#config = app.config()
-
 #for addon in app.addons():
     #addon.delete()
 
