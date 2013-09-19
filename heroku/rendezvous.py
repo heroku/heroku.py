@@ -33,6 +33,7 @@ class Rendezvous():
                            ca_certs=self.cert,
                            cert_reqs=ssl.CERT_REQUIRED)
 
+        ssl_sock.settimeout(10)
         ssl_sock.connect((self.hostname, self.port))
         ssl_sock.write(self.secret)
         data = ssl_sock.read()
