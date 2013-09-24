@@ -19,12 +19,10 @@ TEST_EMAIL = os.environ.get('TEST_EMAIL', False)
 
 
 heroku_conn = heroku.from_key(HEROKU_API_KEY)
-socket.setdefaulttimeout(1)
 
 #app = heroku_conn.create_app(name='testy123app', stack='cedar', region_name='us')
 #print app.addons()
 #print heroku_conn.addons('testy123app')
-#app.install_addon(plan_name='heroku-postgresql:dev')
 #for addon in app.addons():
     #addon.delete()
 
@@ -142,7 +140,7 @@ socket.setdefaulttimeout(1)
 #for addon in app.addons:
     #print addon.app.name, " - ", addon.plan.name
 
-#addons = heroku_conn.addon_services()
+addons = heroku_conn.addon_services()
 #pprint(addons)
 
 #pg_addon = heroku_conn.addon_services('6235c964-8b3c-47e0-952f-8d8f6a2d53f5')
@@ -150,9 +148,8 @@ socket.setdefaulttimeout(1)
 #pprint(pg_addon)
 
 
-#for addon in app.addons:
-    #print addon.app.name, " - ", addon.plan.name, " - ", addon.id
-    #pprint(addon.app)
+#for addon in addons:
+    #print addon.name, " - ", addon.id, " - ", addon.id, " - ", addon.price
     #addon.upgrade(name='heroku-postgresql:basic')
     #addon.delete()
 
