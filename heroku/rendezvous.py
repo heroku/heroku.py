@@ -18,7 +18,10 @@ class Rendezvous():
         self.hostname = urlp.hostname
         self.port = urlp.port
         self.secret = urlp.path[1:]
-        self.cert = os.path.abspath("{0}../../data/cacert.pem".format(os.path.dirname(os.path.realpath(__file__))))
+        path = os.path.dirname(os.path.realpath(__file__))
+        print "file path is {0}".format(path)
+        self.cert = os.path.abspath("{0}../../data/cacert.pem".format(path))
+        print "cert path is {0}".format(self.cert)
         self.data = ""
         self.printout = printout
 
