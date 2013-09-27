@@ -391,6 +391,12 @@ class ConfigVars(object):
 
         super(ConfigVars, self).__init__()
 
+    def __iter__(self):
+        return self.data.iteritems()
+
+    def __getitem__(self,key):
+        return self.data[key]
+
     def __repr__(self):
         return repr(self.data)
 
