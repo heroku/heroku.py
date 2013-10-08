@@ -46,7 +46,11 @@ heroku_conn = heroku.from_key(HEROKU_API_KEY)
 #print config['TEST1']
 #print config['TEST3']
 
-#app = heroku_conn.app('testyzz123')
+app = heroku_conn.app('crissharehoodfrontend')
+proc = app.process_formation()['celery_frontend_fastQ']
+print proc.size
+print proc.quantity
+proc.scale(1)
 #output = app.run_command('pgbackups:url')
 #collab = app.add_collaborator(email=TEST_EMAIL, silent=False)
 #print newapp.collaborators()

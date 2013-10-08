@@ -144,7 +144,8 @@ class HerokuCore(object):
 
         headers = self._get_headers_for_request(method, url, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange, sort=sort)
 
-        #print url
+        print "\n\n\n\n"
+        print url
         r = self._session.request(method, url, params=params, data=data, headers=headers)
 
         if 'ratelimit-remaining' in r.headers:
@@ -173,7 +174,8 @@ class HerokuCore(object):
             print r.content.decode("utf-8")
             pass
         r.raise_for_status()
-
+        print r.content.decode("utf-8")
+        print "\n\n\n\n"
         return r
 
     def _get_resource(self, resource, obj, params=None, **kwargs):

@@ -81,6 +81,7 @@ class BaseResource(object):
     @classmethod
     def new_from_dict(cls, d, h=None, **kwargs):
 
+        print d
         d = to_python(
             obj=cls(),
             in_dict=d,
