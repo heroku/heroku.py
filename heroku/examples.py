@@ -46,11 +46,13 @@ heroku_conn = heroku.from_key(HEROKU_API_KEY)
 #print config['TEST1']
 #print config['TEST3']
 
-app = heroku_conn.app('crissharehoodfrontend')
-proc = app.process_formation()['celery_frontend_fastQ']
-print proc.size
-print proc.quantity
-proc.scale(1)
+app = heroku_conn.app('dslhsdf98sdf')
+procs = app.process_formation()
+proc = app.process_formation()['web']
+#print proc.size
+#print proc.quantity
+#print procs
+proc.scale(0)
 #output = app.run_command('pgbackups:url')
 #collab = app.add_collaborator(email=TEST_EMAIL, silent=False)
 #print newapp.collaborators()
@@ -144,7 +146,7 @@ proc.scale(1)
 #for addon in app.addons:
     #print addon.app.name, " - ", addon.plan.name
 
-addons = heroku_conn.addon_services()
+#addons = heroku_conn.addon_services()
 #pprint(addons)
 
 #pg_addon = heroku_conn.addon_services('6235c964-8b3c-47e0-952f-8d8f6a2d53f5')

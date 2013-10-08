@@ -144,8 +144,8 @@ class HerokuCore(object):
 
         headers = self._get_headers_for_request(method, url, legacy=legacy, order_by=order_by, limit=limit, valrange=valrange, sort=sort)
 
-        print "\n\n\n\n"
-        print url
+        #print "\n\n\n\n"
+        #print url
         r = self._session.request(method, url, params=params, data=data, headers=headers)
 
         if 'ratelimit-remaining' in r.headers:
@@ -174,8 +174,8 @@ class HerokuCore(object):
             print r.content.decode("utf-8")
             pass
         r.raise_for_status()
-        print r.content.decode("utf-8")
-        print "\n\n\n\n"
+        #print r.content.decode("utf-8")
+        #print "\n\n\n\n"
         return r
 
     def _get_resource(self, resource, obj, params=None, **kwargs):
@@ -210,6 +210,12 @@ class HerokuCore(object):
         return items
 
     def _process_items(self, d_items, obj, map=None, **kwargs):
+
+        if not isinstance(d_items, list):
+            print "Warning, Response for '{0}' was of type {1} - I was expecting a 'list'. This could mean the api has changed its response type for this request.".format(obj, type(d_items))
+            if isinstance(d_items, dict):
+                print "As it's a dict, I'll try to process it anyway"
+                return self._process_item(d_items, obj, **kwargs)
 
         items = [obj.new_from_dict(item, h=self, **kwargs) for item in d_items]
 
