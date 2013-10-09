@@ -48,4 +48,4 @@ class Formation(BaseResource):
         )
 
         r.raise_for_status()
-        return self._h._process_items(self._h._resource_deserialize(r.content.decode("utf-8")), Formation)
+        return self._h._process_item(self._h._resource_deserialize(r.content.decode("utf-8")), Formation)
