@@ -2,7 +2,7 @@
 import os
 import heroku
 from pprint import pprint# noqa
-import socket
+#import socket
 
 #import httplib
 #import logging
@@ -17,10 +17,9 @@ HEROKU_API_KEY = os.environ.get('HEROKU_API_KEY', False)
 HEROKU_APPNAME = os.environ.get('HEROKU_APPNAME', False)
 TEST_EMAIL = os.environ.get('TEST_EMAIL', False)
 
-
 heroku_conn = heroku.from_key(HEROKU_API_KEY)
 
-#app = heroku_conn.create_app(name='testy123app', stack='cedar', region_name='us')
+app = heroku_conn.create_app(name='testy124app', stack='cedar', region_name='us')
 #print app.addons()
 #print heroku_conn.addons('testy123app')
 #for addon in app.addons():
@@ -46,15 +45,16 @@ heroku_conn = heroku.from_key(HEROKU_API_KEY)
 #print config['TEST1']
 #print config['TEST3']
 
-app = heroku_conn.app('dslhsdf98sdf')
-procs = app.process_formation()
-proc = app.process_formation()['web']
+#app = heroku_conn.app('dslhsdf98sdf')
+#procs = app.process_formation()
+#proc = app.process_formation()['web']
 #print proc.size
 #print proc.quantity
 #print procs
-proc.scale(0)
+#proc.scale(0)
 #output = app.run_command('pgbackups:url')
-#collab = app.add_collaborator(email=TEST_EMAIL, silent=False)
+collab = app.add_collaborator(email=TEST_EMAIL, silent=False)
+#collab = app.remove_collaborator(TEST_EMAIL)
 #print newapp.collaborators()
 #config = newapp.config()
 #config['TEST2'] = None
