@@ -79,7 +79,7 @@ class App(BaseResource):
             silent = True
 
         #commented out until api is fixed
-        #payload['silent'] = silent
+        payload['silent'] = silent
         payload['user'] = user
 
         r = self._h._http_resource(
