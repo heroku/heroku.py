@@ -45,7 +45,7 @@ app = heroku_conn.create_app(name='testy124app', stack='cedar', region_name='us'
 #print config['TEST1']
 #print config['TEST3']
 
-#app = heroku_conn.app('dslhsdf98sdf')
+app = heroku_conn.app('dasdf7sd875687df')
 #procs = app.process_formation()
 #proc = app.process_formation()['web']
 #print proc.size
@@ -53,7 +53,7 @@ app = heroku_conn.create_app(name='testy124app', stack='cedar', region_name='us'
 #print procs
 #proc.scale(0)
 #output = app.run_command('pgbackups:url')
-collab = app.add_collaborator(email=TEST_EMAIL, silent=False)
+#collab = app.add_collaborator(email=TEST_EMAIL, silent=False)
 #collab = app.remove_collaborator(TEST_EMAIL)
 #print newapp.collaborators()
 #config = newapp.config()
@@ -72,9 +72,9 @@ collab = app.add_collaborator(email=TEST_EMAIL, silent=False)
 
 #dyno = dynos['web.1']
 #print dyno
-#releases = app.releases(sort='asc')
-#for release in releases:
-    #print release
+releases = app.releases(sort='asc')
+for release in releases:
+    print "{0} {1} {2} {3}".format(release.id, release.commit, release.user, release.description)
 #releases = app.releases()._items.reverse()
 #print releases.pop()
 #print releases.pop()
