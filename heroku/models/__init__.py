@@ -106,7 +106,7 @@ class Price(BaseResource):
 
     def __init__(self):
         self.app = None
-        super(User, self).__init__()
+        super(Price, self).__init__()
 
     def __repr__(self):
         return "<price '{0} per {1}'>".format(self.cents, self.unit)

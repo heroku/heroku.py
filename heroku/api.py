@@ -17,6 +17,7 @@ from .models.account import Account
 from .models.key import Key
 from .models.configvars import ConfigVars
 from .models.logsession import LogSession
+from .models.oauth import OAuthClient, OAuthAuthorization, OAuthToken
 from .rendezvous import Rendezvous
 from .structures import KeyedListResource, SSHKeyListResource
 from .models.account.feature import AccountFeature
@@ -303,6 +304,108 @@ class Heroku(HerokuCore):
 
     def features(self, **kwargs):
         return self._get_resources(('account/features'), AccountFeature, **kwargs)
+
+    def oauthauthorization(self, oauthauthorization_id):
+        return self._get_resource(('oauth', 'authorizations', oauthauthorization_id), OAuthAuthorization)
+
+    def oauthauthorizations(self, **kwargs):
+        return self._get_resources(('oauth', 'authorizations'), OAuthAuthorization, **kwargs)
+
+    def oauthauthorization_create(self, scope, oauthclient_id=None, description=None):
+        """
+        Creates an OAuthClient with the given name and redirect_uri
+        """
+
+        payload = {'scope': scope}
+        if oauthclient_id:
+            payload.update({'oauthclient_id': oauthclient_id})
+
+        if description:
+            payload.update({'description': description})
+
+        r = self._http_resource(
+            method='POST',
+            resource=('oauth', 'authorizations'),
+            data=self._h._resource_serialize(payload)
+        )
+        r.raise_for_status()
+        item = self._resource_deserialize(r.content.decode("utf-8"))
+        return OAuthClient.new_from_dict(item, h=self)
+
+    def oauthauthorization_delete(self, oauthauthorization_id):
+        """
+        Destroys the OAuthAuthorization with oauthauthorization_id
+        """
+        r = self._http_resource(
+            method='DELETE',
+            resource=('oauth', 'authorizations', oauthauthorization_id)
+        )
+        r.raise_for_status()
+        return r.ok
+
+    def oauthclient(self, oauthclient_id):
+        return self._get_resource(('oauth', 'clients', oauthclient_id), OAuthClient)
+
+    def oauthclients(self, **kwargs):
+        return self._get_resources(('oauth', 'clients'), OAuthClient, **kwargs)
+
+    def oauthclient_create(self, name, redirect_uri):
+        """
+        Creates an OAuthClient with the given name and redirect_uri
+        """
+
+        payload = {'name': name, 'redirect_uri': redirect_uri}
+
+        r = self._http_resource(
+            method='POST',
+            resource=('oauth', 'clients'),
+            data=self._h._resource_serialize(payload)
+        )
+        r.raise_for_status()
+        item = self._resource_deserialize(r.content.decode("utf-8"))
+        return OAuthClient.new_from_dict(item, h=self)
+
+    def oauthclient_delete(self, oauthclient_id):
+        """
+        Destroys the OAuthClient with id oauthclient_id
+        """
+        r = self._http_resource(
+            method='DELETE',
+            resource=('oauth', 'clients', oauthclient_id)
+        )
+        r.raise_for_status()
+        return r.ok
+
+    def oauthtoken_create(self, client_secret=None, grant_code=None, grant_type=None, refresh_token=None):
+        """
+        Creates an OAuthToken with the given optional parameters
+        """
+
+        payload = {}
+        grant = {}
+        if client_secret:
+            payload.update({'client': {'secret': client_secret}})
+
+        if grant_code:
+            grant.update({'code': grant_code})
+
+        if grant_type:
+            grant.update({'type': grant_type})
+
+        if refresh_token:
+            payload.update({'refresh_token': {'token': refresh_token}})
+
+        if grant:
+            payload.update({'grant': grant})
+
+        r = self._http_resource(
+            method='POST',
+            resource=('oauth', 'tokens'),
+            data=self._h._resource_serialize(payload)
+        )
+        r.raise_for_status()
+        item = self._resource_deserialize(r.content.decode("utf-8"))
+        return OAuthToken.new_from_dict(item, h=self)
 
     def run_command_on_app(self, appname, command, size=1, attach=True, printout=True, env=None):
         """Run a remote command attach=True if you want to capture the output"""

@@ -477,8 +477,58 @@ Disable Maintenance Mode::
 
 OAuth
 ~~~~~
+OAuthAuthorizations
+___________________
 
-**Not Implemented Yet**
+List all OAuthAuthorizations::
+
+    authorizations = heroku_conn.oauthauthorizations(order_by=id)
+
+Get a specific OAuthAuthorization::
+
+    authorization = authorizations[<oauthauthorization_id>]
+    authorization = heroku_conn.oauthauthorization(oauthauthorization_id)
+    
+Create an OAuthAuthorization::
+
+    authorization = heroku_conn.oauthauthorization_create(scope, oauthclient_id=None, description=None)
+
+Delete an OAuthAuthorization::
+
+    authorization.delete()
+    heroku_conn.oauthauthorization_delete(oauthauthorization_id)
+
+OAuthClient
+___________
+
+List all OAuthClients::
+
+    clients = heroku_conn.oauthclients(order_by=id)
+
+Get a specific OAuthClient::
+
+    client = clients[<oauthclient_id>]
+    client = heroku_conn.oauthclient(oauthclient_id)
+    
+Create an OAuthClient::
+
+    client = heroku_conn.oauthclient_create(name, redirect_uri)
+
+Update an existing OAuthClient::
+
+    client = client.update(name=None, redirect_uri=None)
+
+Delete an OAuthClient::
+
+    client.delete()
+    heroku_conn.oauthclient_delete(oauthclient_id)
+
+OAuthToken
+__________
+
+Create an OAuthToken::
+
+    heroku_conn.oauthtoken_create(client_secret=None, grant_code=None, grant_type=None, refresh_token=None)
 
 Release
 ~~~~~~~
