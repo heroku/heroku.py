@@ -258,25 +258,19 @@ class Heroku(HerokuCore):
     def app(self, id_or_name):
         return self._get_resource(('apps/{0:s}'.format(id_or_name)), App)
 
-    def create_app(self, name=None, stack='cedar', region_id=None, region_name=None):
+    def create_app(self, name=None, stack_id_or_name='cedar', region_id_or_name=None):
         """Creates a new app."""
 
         payload = {}
-        region = {}
 
         if name:
             payload['name'] = name
 
-        if stack:
-            payload['stack'] = stack
+        if stack_id_or_name:
+            payload['stack'] = stack_id_or_name
 
-        if region_id:
-            region['id'] = region_id
-        if region_name:
-            region['name'] = region_name
-        if region_id or region_name:
-            payload['region'] = region
-            pass
+        if region_id_or_name:
+            payload['region'] = region_id_or_name
 
         try:
             r = self._http_resource(
@@ -313,12 +307,12 @@ class Heroku(HerokuCore):
 
     def oauthauthorization_create(self, scope, oauthclient_id=None, description=None):
         """
-        Creates an OAuthClient with the given name and redirect_uri
+        Creates an OAuthAuthorization
         """
 
         payload = {'scope': scope}
         if oauthclient_id:
-            payload.update({'oauthclient_id': oauthclient_id})
+            payload.update({'client': oauthclient_id})
 
         if description:
             payload.update({'description': description})

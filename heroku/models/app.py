@@ -58,29 +58,17 @@ class App(BaseResource):
         r.raise_for_status()
         return r.ok
 
-    def add_collaborator(self, email=None, id=None, silent=False):
+    def add_collaborator(self, user_id_or_email, silent=False):
         """
         Adds a collaborator to your app
-        must specify
-        email = <email address>
-        or
-        user id
         [silent 1|0]  Specifies whether to email the collaborator or not
         """
-        assert(email or id)
-        payload = {}
-        user = {}
-        if email:
-            user['email'] = email
-        if id:
-            user['id'] = id
 
         if silent:
             silent = True
 
         #commented out until api is fixed
-        payload['silent'] = silent
-        payload['user'] = user
+        payload = {'silent': silent, 'user': user_id_or_email}
 
         r = self._h._http_resource(
             method='POST',
@@ -105,21 +93,14 @@ class App(BaseResource):
 
         return r.ok
 
-    def install_addon(self, plan_id=None, plan_name=None, config=None):
+    def install_addon(self, plan_id_or_name, config=None):
 
         payload = {}
-        plan = {}
         if not config:
             config = {}
-        assert(plan_id or plan_name)
-        if plan_id:
-            plan['id'] = plan_id
 
-        if plan_name:
-            plan['name'] = plan_name
-
+        payload['plan'] = plan_id_or_name
         payload['config'] = config
-        payload['plan'] = plan
 
         r = self._h._http_resource(
             method='POST',
@@ -361,24 +342,10 @@ class App(BaseResource):
             obj=AppTransfer, app=self, **kwargs
         )
 
-    def create_transfer(self, id=None, email=None):
+    def create_transfer(self, recipient_id_or_name):
         """Transfers app to given username's account."""
-        assert(id or email)
 
-        payload = {}
-        recipient = {}
-        app = {}
-        if email:
-            recipient['email'] = email
-
-        if id:
-            recipient['id'] = id
-
-        app['id'] = self.id
-        app['name'] = self.name
-
-        payload['app'] = app
-        payload['recipient'] = recipient
+        payload = {'app': self.id, 'recipient': recipient_id_or_name}
 
         r = self._h._http_resource(
             method='PUT',

@@ -21,25 +21,11 @@ class Addon(BaseResource):
         r.raise_for_status()
         return r.ok
 
-    def upgrade(self, name=None, config=None):
+    def upgrade(self, plan_id_or_name):
 
-        """Upgrades an addon to the given tier."""
-        # Allow non-namespaced upgrades. (e.g. advanced vs logging:advanced)
-        if ':' not in name:
-            name = '{0}:{1}'.format(self.type, name)
+        """Upgrades an addon to the given plan."""
 
-        payload = {}
-        plan = {}
-        if not config:
-            config = {}
-        print "name = {0}".format(name)
-        print "id = {0}".format(self.id)
-        print "planid = {0}".format(self.plan.id)
-        assert(name)
-        plan['id'] = self.plan.id
-        plan['name'] = name
-        payload['config'] = config
-        payload['plan'] = plan
+        payload = {'plan': plan_id_or_name}
 
         r = self._h._http_resource(
             method='PATCH',

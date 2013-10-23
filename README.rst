@@ -205,6 +205,9 @@ Get specific app::
     app = heroku_conn.app(<id_or_name>)
     app = heroku_conn.apps[id_or_name]
 
+Create an app::
+    app = heroku_conn.create_app(name=None, stack_id_or_name='cedar', region_id_or_name=<region_id>)
+
 Destroy an app (**Warning this is irreversible**)::
 
     app.delete()
@@ -220,9 +223,9 @@ List all Addons::
 
 Install an Addon::
 
-    addon = app.install_addon(plan_id='<id>', config={})
-    addon = app.install_addon(plan_name='<name>', config={})
-    addon = app.install_addon(plan_id=addonservice.id, config={})
+    addon = app.install_addon(plan_id_or_name='<id>', config={})
+    addon = app.install_addon(plan_id_or_name='<name>', config={})
+    addon = app.install_addon(plan_id_or_name=addonservice.id, config={})
 
 Remove an Addon::
 
@@ -232,7 +235,8 @@ Remove an Addon::
 
 Update/Upgrade an Addon::
 
-    addon = addon.upgrade(name='<name>', config={})
+    addon = addon.upgrade(plan_id_or_name='<name>')
+    addon = addon.upgrade(plan_id_or_name='<id>')
 
 App Labs/Features
 ~~~~~~~~~~~~~
@@ -261,8 +265,8 @@ List all Transfers::
 
 Create a Transfer::
 
-    transfer = app.create_transfer(id=<user_id>)
-    transfer = app.create_transfer(email=<valid_email>)
+    transfer = app.create_transfer(recipient_id_or_name=<user_id>)
+    transfer = app.create_transfer(recipient_id_or_name=<valid_email>)
 
 Delete a Transfer::
 
@@ -287,9 +291,9 @@ List all Collaborators::
 
 Add a Collaborator::
 
-    collaborator = app.add_collaborator(email=<valid_email>, silent=0)
-    collaborator = app.add_collaborator(id=user_id, silent=0)
-    collaborator = app.add_collaborator(id=user_id, silent=1) #don't send invitation email
+    collaborator = app.add_collaborator(user_id_or_email=<valid_email>, silent=0)
+    collaborator = app.add_collaborator(user_id_or_email=user_id, silent=0)
+    collaborator = app.add_collaborator(user_id_or_email=user_id, silent=1) #don't send invitation email
 
 Remove a Collaborator::
 
