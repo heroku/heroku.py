@@ -7,9 +7,9 @@ class RestartRunException(Exception):
 
 
 class Dyno(BaseResource):
-    _strs = ['id', 'attach_url', 'command', 'name', 'state', 'type']
+    _strs = ['id', 'attach_url', 'size', 'command', 'name', 'state', 'type']
     _bools = ['attach']
-    _ints = ['size', 'repo_size']
+    _ints = ['repo_size']
     _dates = ['created_at', 'updated_at']
     _map = {'release': Release}
     _pks = ['id']

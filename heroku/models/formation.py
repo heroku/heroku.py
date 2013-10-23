@@ -10,8 +10,8 @@ else:
 
 class Formation(BaseResource):
 
-    _strs = ['id', 'command', 'type']
-    _ints = ['quantity', 'size']
+    _strs = ['id', 'command', 'type', 'size']
+    _ints = ['quantity']
     _bools = ['attached']
     _dates = ['created_at', 'updated_at']
     _pks = ['id', 'type']
