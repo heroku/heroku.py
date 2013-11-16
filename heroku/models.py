@@ -586,9 +586,9 @@ class Process(BaseResource):
 
         r.raise_for_status()
 
-        if self.type in self.app.processes:
+        try:
             return self.app.processes[self.type]
-        else:
+        except KeyError:
             return ProcessListResource()
 
 
