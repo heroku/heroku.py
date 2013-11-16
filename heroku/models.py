@@ -535,7 +535,8 @@ class Process(BaseResource):
         )
 
         r.raise_for_status()
-        return self.app.processes[r.json['process']]
+        data = r.json if isinstance(r.json, dict) else r.json()
+        return self.app.processes[data['process']]
 
     @property
     def type(self):
