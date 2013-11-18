@@ -1,4 +1,4 @@
-from ..models import BaseResource, User
+from ..models import BaseResource, User, Stack
 from ..rendezvous import Rendezvous
 from ..structures import DynoListResource
 
