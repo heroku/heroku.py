@@ -124,6 +124,20 @@ class Plan(BaseResource):
         return "<Plan '{0}'>".format(self.name)
 
 
+class Stack(BaseResource):
+    """Heroku Stack."""
+
+    _strs = ['id', 'name']
+    _pks = ['id', 'name']
+
+    def __init__(self):
+        self.app = None
+        super(Stack, self).__init__()
+
+    def __repr__(self):
+        return "<stack '{0}'>".format(self.name)
+
+
 class User(BaseResource):
     """Heroku User."""
 

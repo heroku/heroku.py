@@ -25,11 +25,11 @@ else:
 class App(BaseResource):
     """Heroku App."""
 
-    _strs = ['buildpack_provided_description', 'git_url', 'id', 'name', 'stack', 'web_url']
+    _strs = ['buildpack_provided_description', 'git_url', 'id', 'name', 'web_url']
     _ints = ['slug_size', 'repo_size']
     _bools = ['maintenance']
     _dates = ['archived_at', 'created_at', 'released_at', 'updated_at']
-    _map = {'region': Region, 'owner': User}
+    _map = {'region': Region, 'owner': User, 'stack': Stack}
     _pks = ['name', 'id']
 
     def __init__(self):
