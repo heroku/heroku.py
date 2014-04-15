@@ -249,7 +249,7 @@ class App(BaseResource):
         )
 
         r.raise_for_status()
-        return self._h._process_items(self._h._resource_deserialize(r.content.decode("utf-8")), Formation)
+        return self._h._process_item(self._h._resource_deserialize(r.content.decode("utf-8")), Formation)
 
     def resize_formation_process(self, formation_id_or_name, size):
         assert(size == 0 or size)

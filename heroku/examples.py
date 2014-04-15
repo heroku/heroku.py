@@ -19,7 +19,7 @@ TEST_EMAIL = os.environ.get('TEST_EMAIL', False)
 
 heroku_conn = heroku.from_key(HEROKU_API_KEY)
 
-app = heroku_conn.create_app(name='testy2124app', stack_id_or_name='cedar', region_id_or_name='us')
+#app = heroku_conn.create_app(name='testy2124app', stack_id_or_name='cedar', region_id_or_name='us')
 #print app.addons()
 #print heroku_conn.addons('testy123app')
 #for addon in app.addons():
@@ -45,13 +45,14 @@ app = heroku_conn.create_app(name='testy2124app', stack_id_or_name='cedar', regi
 #print config['TEST1']
 #print config['TEST3']
 
-app = heroku_conn.app('dasdf7sd875687df')
+#app = heroku_conn.app('kdsjhkszdjhgksjdhfkj')
 #procs = app.process_formation()
 #proc = app.process_formation()['web']
 #print proc.size
 #print proc.quantity
 #print procs
 #proc.scale(0)
+#app.scale_formation_process('web', 1)
 #output = app.run_command('pgbackups:url')
 #collab = app.add_collaborator(email=TEST_EMAIL, silent=False)
 #collab = app.remove_collaborator(TEST_EMAIL)
@@ -72,9 +73,9 @@ app = heroku_conn.app('dasdf7sd875687df')
 
 #dyno = dynos['web.1']
 #print dyno
-releases = app.releases(sort='asc')
-for release in releases:
-    print "{0} {1} {2} {3}".format(release.id, release.commit, release.user, release.description)
+#releases = app.releases(sort='asc')
+#for release in releases:
+    #print "{0} {1} {2} {3}".format(release.id, release.commit, release.user, release.description)
 #releases = app.releases()._items.reverse()
 #print releases.pop()
 #print releases.pop()
