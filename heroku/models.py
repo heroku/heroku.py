@@ -180,7 +180,7 @@ class App(BaseResource):
     def __repr__(self):
         return "<app '{0}'>".format(self.name)
 
-    def new(self, name=None, stack='cedar'):
+    def new(self, name=None, stack='cedar', region=None):
         """Creates a new app."""
 
         payload = {}
@@ -190,6 +190,9 @@ class App(BaseResource):
 
         if stack:
             payload['app[stack]'] = stack
+
+        if region:
+            payload['app[region]'] = region
 
         r = self._h._http_resource(
             method='POST',
