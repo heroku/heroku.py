@@ -538,7 +538,7 @@ class Process(BaseResource):
         )
 
         r.raise_for_status()
-        return self.app.processes[r.json['process']]
+        return self.app.processes[r.json()['process']]
 
     @property
     def type(self):
