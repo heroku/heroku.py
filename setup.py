@@ -29,7 +29,7 @@ setup(
                      open('HISTORY.rst').read(),
     author='Kenneth Reitz',
     author_email='kenneth@heroku.com',
-    url='https://github.com/martyzz1/heroku.py',
+    url='https://github.com/heroku/heroku.py',
     packages=['heroku'],
     package_data={'': ['LICENSE', ]},
     include_package_data=True,
