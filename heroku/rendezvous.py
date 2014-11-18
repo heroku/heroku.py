@@ -31,8 +31,9 @@ class Rendezvous():
         # so here ca_certs must be the server certificate itself.
 
         ssl_sock = ssl.wrap_socket(s,
-                           ca_certs=self.cert,
-                           cert_reqs=ssl.CERT_REQUIRED)
+                            ca_certs=self.cert,
+                            cert_reqs=ssl.CERT_REQUIRED,
+                            ssl_version=ssl.PROTOCOL_TLSv1)
 
         ssl_sock.settimeout(20)
         ssl_sock.connect((self.hostname, self.port))
