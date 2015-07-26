@@ -169,9 +169,9 @@ class Addon(AvailableAddon):
 class App(BaseResource):
     """Heroku App."""
 
-    _strs = ['name', 'create_status', 'stack', 'repo_migrate_status']
+    _strs = ['name', 'create_status', 'stack', 'repo_migrate_status', 'web_url', 'git_url', 'buildpack_provided_description']
     _ints = ['id', 'slug_size', 'repo_size', 'dynos', 'workers']
-    _dates = ['created_at',]
+    _dates = ['created_at', 'archived_at', 'released_at', 'updated_at']
     _pks = ['name', 'id']
 
     def __init__(self):

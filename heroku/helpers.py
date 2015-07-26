@@ -59,10 +59,8 @@ def to_python(obj,
             in_date = in_dict.get(in_key)
             try:
                 out_date = parse_datetime(in_date)
-            except TypeError as e:
-                raise e
+            except (TypeError, AttributeError):
                 out_date = None
-
             d[in_key] = out_date
 
     if int_keys:
