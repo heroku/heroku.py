@@ -63,7 +63,7 @@ You can even stream the tail::
     ...
 
 
-Change app configration::
+Change app configuration::
 
     >>> app.config['DEBUG'] = 1
     >>> app.config
