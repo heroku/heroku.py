@@ -104,6 +104,14 @@ class Account(BaseResource):
     def __repr__(self):
         return "<account '{0}'>".format(self.email)
 
+class Organization(BaseResource):
+    _strs = ['name', 'role']
+    _bools = ['credit_card_collections', 'default', 'privisioned_licenses']
+    _dates = ['created_at', 'updated_at']
+
+    def __repr__(self):
+        return "<organization '{0}'>".format(self.name)
+
 
 class AvailableAddon(BaseResource):
     """Heroku Addon."""
