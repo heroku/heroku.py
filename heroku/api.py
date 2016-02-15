@@ -96,7 +96,7 @@ class HerokuCore(object):
 
         url = self._url_for(*resource)
         r = self._session.request(method, url, params=params, data=data)
-
+        
         if r.status_code == 422:
             http_error = HTTPError('%s Client Error: %s' %
                                    (r.status_code, r.content.decode("utf-8")))
@@ -144,6 +144,10 @@ class Heroku(HerokuCore):
     @property
     def account(self):
         return self._get_resource(('account'), Account)
+
+    @property
+    def organizations(self):
+        self._get_resources(('organizations'), Organization)
 
     @property
     def addons(self):
