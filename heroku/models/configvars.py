@@ -1,4 +1,3 @@
-from .structures import *
 import json
 
 

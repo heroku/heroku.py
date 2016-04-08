@@ -1,4 +1,3 @@
-from .structures import *
 from baseresource import BaseResource
 
 

@@ -1,4 +1,4 @@
-from .structures import *
+from .. structures import *
 import json
 import requests
 from baseresource import BaseResource
