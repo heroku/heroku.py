@@ -11,7 +11,7 @@ from .compat import json
 from .helpers import is_collection
 from .models import *
 from .structures import KeyedListResource
-from heroku.models import Feature
+from models import Feature
 from requests.exceptions import HTTPError
 import requests
 
