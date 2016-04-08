@@ -6,8 +6,7 @@ allows Heroku users to manage their accounts, applications, addons, and
 other aspects related to Heroku. It allows you to easily utilize the Heroku
 platform from your applications.
 
-**This project is out-of-date and is not being actively maintained.**
-
+** This project was discontinuated by Heroku and I (fbidu) am trying to bring it back to life **
 Usage
 -----
 
