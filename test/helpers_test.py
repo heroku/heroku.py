@@ -1,3 +1,4 @@
+import py.test
 from heroku.helpers import *
 
 
