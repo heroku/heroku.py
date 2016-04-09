@@ -24,4 +24,4 @@ __version__ = '0.1.3'
 
 # Module namespace.
 
-from .core import from_key, get_key, from_pass
+from heroku.core import from_key, get_key, from_pass

@@ -1,12 +1,22 @@
 Heroku.py
 =========
+.. image:: https://travis-ci.org/fbidu/pyheroku.svg?branch=master
+    :target: https://travis-ci.org/fbidu/pyheroku
+.. image:: https://codeclimate.com/github/fbidu/pyheroku/badges/gpa.svg
+   :target: https://codeclimate.com/github/fbidu/pyheroku
+   :alt: Code Climate
+.. image:: https://codeclimate.com/github/fbidu/pyheroku/badges/issue_count.svg
+   :target: https://codeclimate.com/github/fbidu/pyheroku
+   :alt: Issue Count
+.. image:: https://api.codacy.com/project/badge/grade/697ebb5a726e44ab8e79a316ce85216c
+   :target: https://www.codacy.com/app/bidu-pub/pyheroku
 
 This is an awesome Python wrapper for the Heroku API. The Heroku REST API
 allows Heroku users to manage their accounts, applications, addons, and
 other aspects related to Heroku. It allows you to easily utilize the Heroku
 platform from your applications.
 
-**This project is out-of-date and is not being actively maintained.**
+**This project was discontinuated by Heroku and I (fbidu) am trying to bring it back to life**
 
 Usage
 -----

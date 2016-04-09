@@ -7,11 +7,11 @@ heroku.api
 This module provides the basic API interface for Heroku.
 """
 
-from .compat import json
-from .helpers import is_collection
-from .models import *
-from .structures import KeyedListResource
-from heroku.models import Feature
+from heroku.compat import json
+from heroku.helpers import is_collection
+from heroku.models import *
+from heroku.structures import KeyedListResource
+from models import Feature, App
 from requests.exceptions import HTTPError
 import requests
 
@@ -119,7 +119,7 @@ class HerokuCore(object):
         r = self._http_resource('GET', resource, params=params)
         d_items = self._resource_deserialize(r.content.decode("utf-8"))
 
-        items =  [obj.new_from_dict(item, h=self, **kwargs) for item in d_items]
+        items = [obj.new_from_dict(item, h=self, **kwargs) for item in d_items]
 
         if map is None:
             map = KeyedListResource
@@ -155,12 +155,18 @@ class Heroku(HerokuCore):
 
     @property
     def keys(self):
-        return self._get_resources(('user', 'keys'), Key, map=SSHKeyListResource)
+        return self._get_resources(('user', 'keys'), Key,
+                                   map=SSHKeyListResource)
 
     @property
     def labs(self):
-        return self._get_resources(('features'), Feature, map=filtered_key_list_resource_factory(lambda obj: obj.kind == 'user'))
-
+        return self._get_resources(
+            ('features'),
+            Feature,
+            map=filtered_key_list_resource_factory(
+                lambda obj: obj.kind == 'user'
+            )
+        )
 
 
 class ResponseError(ValueError):

@@ -51,7 +51,6 @@ class KeyedListResource(object):
 
             return o.new(*args, **kwargs)
 
-
     def remove(self, key):
         if hasattr(self[0], 'delete'):
             return self[key].delete()
@@ -63,7 +62,6 @@ class KeyedListResource(object):
 
     def __delitem__(self, key):
         self[key].delete()
-
 
 
 class ProcessListResource(KeyedListResource):
@@ -97,7 +95,6 @@ class ProcessTypeListResource(ProcessListResource):
         return self[0].scale(quantity)
 
 
-
 class SSHKeyListResource(KeyedListResource):
     """KeyedListResource with clearing for ssh keys."""
 
@@ -118,10 +115,17 @@ class SSHKeyListResource(KeyedListResource):
 
 class FilteredListResource(KeyedListResource):
     filter_func = staticmethod(lambda item: True)
-    
-    def __init__(self, items=None):
-        items = [item for item in items if self.filter_func(item)] if items else []
+
+
+def __init__(self, items=None):
+        items = [item for item in items
+                 if self.filter_func(item)] if items else []
         super(FilteredListResource, self).__init__(items)
 
+
 def filtered_key_list_resource_factory(filter_func):
-    return type('FilteredListResource', (FilteredListResource,), {'filter_func': staticmethod(filter_func)})
+    return type(
+        'FilteredListResource',
+        (FilteredListResource),
+        {'filter_func': staticmethod(filter_func)}
+    )
