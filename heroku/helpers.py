@@ -1,44 +1,28 @@
 # -*- coding: utf-8 -*-
 
 """
-heroku.helpers
-~~~~~~~~~~~~~~
-
-This module contians the helpers.
+This module contains the helpers.
 """
 
 from datetime import datetime
-
 from dateutil.parser import parse as parse_datetime
+from collections import Iterable
 
-import sys
 
-if sys.version_info > (3, 0):
-    basestring = (str, bytes)
+def is_string(object):
+    """Check if an object is a string"""
+    return type(object) == str
 
-def is_collection(obj):
+
+def is_collection(object):
     """Tests if an object is a collection."""
-
-    col = getattr(obj, '__getitem__', False)
-    val = False if (not col) else True
-
-    if isinstance(obj, basestring):
-        val = False
-
-    return val
-
+    is_iterable = isinstance(object, Iterable)
+    return is_iterable and not is_string(object)
 
 
 # from kennethreitz/python-github3
-def to_python(obj,
-    in_dict,
-    str_keys=None,
-    date_keys=None,
-    int_keys=None,
-    object_map=None,
-    bool_keys=None,
-    dict_keys=None,
-    **kwargs):
+def to_python(obj, in_dict, str_keys=None, date_keys=None, int_keys=None,
+              object_map=None, bool_keys=None, dict_keys=None, **kwargs):
     """Extends a given object for API Consumption.
 
     :param obj: Object to extend.
@@ -60,9 +44,8 @@ def to_python(obj,
             try:
                 out_date = parse_datetime(in_date)
             except TypeError as e:
-                raise e
                 out_date = None
-
+                raise e
             d[in_key] = out_date
 
     if int_keys:
