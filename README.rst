@@ -1,11 +1,10 @@
 Heroku.py
 =========
+.. image:: https://travis-ci.org/fbidu/pyheroku.svg?branch=master
+    :target: https://travis-ci.org/fbidu/pyheroku
 .. image:: https://codeclimate.com/github/fbidu/pyheroku/badges/gpa.svg
    :target: https://codeclimate.com/github/fbidu/pyheroku
    :alt: Code Climate
-.. image:: https://codeclimate.com/github/fbidu/pyheroku/badges/coverage.svg
-   :target: https://codeclimate.com/github/fbidu/pyheroku/coverage
-   :alt: Test Coverage
 .. image:: https://codeclimate.com/github/fbidu/pyheroku/badges/issue_count.svg
    :target: https://codeclimate.com/github/fbidu/pyheroku
    :alt: Issue Count
