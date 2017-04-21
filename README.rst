@@ -6,7 +6,7 @@ allows Heroku users to manage their accounts, applications, addons, and
 other aspects related to Heroku. It allows you to easily utilize the Heroku
 platform from your applications.
 
-**WARNING: This project is out-of-date and is not being actively maintained.** We recommend you check out the community project [heroku3.py](https://github.com/martyzz1/heroku3.py) instead.
+**WARNING: This project is out-of-date and is not being actively maintained.** We recommend you check out the community project `heroku3.py <https://github.com/martyzz1/heroku3.py>`_ instead.
 
 Usage
 -----
